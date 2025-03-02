@@ -8,8 +8,8 @@ namespace api.Service;
 
 public class TransactionService : ITransactionService
 {
-    private readonly IWalletRepository _walletRepo;
     private readonly IUserRepository _userRepo;
+    private readonly IWalletRepository _walletRepo;
 
     public TransactionService(IWalletRepository walletRepo, IUserRepository userRepo)
     {
@@ -29,7 +29,7 @@ public class TransactionService : ITransactionService
             GeneratorId = userId,
             Amount = amount
         };
-        string json = JsonSerializer.Serialize(qrData);
+        var json = JsonSerializer.Serialize(qrData);
         return Convert.ToBase64String(Encoding.UTF8.GetBytes(json));
     }
 
@@ -40,7 +40,7 @@ public class TransactionService : ITransactionService
         try
         {
             // Step 1: Decode from Base64
-            string json = Encoding.UTF8.GetString(Convert.FromBase64String(qrData));
+            var json = Encoding.UTF8.GetString(Convert.FromBase64String(qrData));
 
             // Step 2: Deserialize JSON to object
             data = JsonSerializer.Deserialize<QrCodeData>(json);
@@ -52,8 +52,8 @@ public class TransactionService : ITransactionService
 
         if (data == null) throw new Exception("Failed to deserialize QR data");
 
-        int generatorId = data.GeneratorId;
-        decimal amount = data.Amount;
+        var generatorId = data.GeneratorId;
+        var amount = data.Amount;
 
         var scannerWallet = await _walletRepo.GetByUserIdAsync(scannerId);
         var generatorWallet = await _walletRepo.GetByUserIdAsync(generatorId);
@@ -75,4 +75,9 @@ public class TransactionService : ITransactionService
         };
     }
 
+
+    public static string GenerateTransactionRef()
+    {
+        return $"TXN-{DateTime.UtcNow:yyyyMMdd}-{Guid.NewGuid().ToString("N").Substring(6)}";
+    }
 }

@@ -1,3 +1,4 @@
+using api.DTOs.Transaction;
 using api.DTOs.User;
 using api.Models;
 
@@ -11,9 +12,17 @@ public static class UserMappers
         {
             Name = userModel.Name,
             EmailAddress = userModel.EmailAddress,
-            Wallets = userModel.Wallets.Select(w => w.ToWalletDto()).ToList()
+            Wallets = userModel.Wallets.Select(w => w.ToWalletDto()).ToList(),
+            CreatedAt = userModel.CreatedAt,
+            SentTransactions = userModel.SentTransactions?
+                .Select(t => t.ToTransactionDto())
+                .ToList() ?? new List<TransactionDto>(),
+            ReceivedTransactions = userModel.ReceivedTransactions?
+                .Select(t => t.ToTransactionDto())
+                .ToList() ?? new List<TransactionDto>()
         };
     }
+
     public static User ToUserFromCreateDto(this CreateUserRequestDto userDto)
     {
         return new User

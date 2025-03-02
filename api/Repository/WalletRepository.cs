@@ -13,6 +13,7 @@ public class WalletRepository : IWalletRepository
     {
         _context = context;
     }
+
     public async Task<List<Wallet>> GetAllAsync()
     {
         return await _context.Wallets.ToListAsync();

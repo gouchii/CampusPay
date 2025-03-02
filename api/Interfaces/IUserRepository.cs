@@ -9,5 +9,4 @@ public interface IUserRepository
     Task<User> CreateAsync(User userModel);
     Task<User?> DeleteAsync(int id);
     Task<User?> UpdateAsync(int id, User userModel);
-
 }

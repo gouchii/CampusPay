@@ -4,6 +4,5 @@ namespace api.DTOs.QR;
 
 public class QrGenerateRequestDto
 {
-    [Required]
-    public decimal Amount { get; set; }
+    [Required] public decimal Amount { get; set; }
 }
