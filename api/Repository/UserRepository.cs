@@ -16,12 +16,18 @@ public class UserRepository : IUserRepository
 
     public async Task<List<User>> GetAllAsync()
     {
-        return await _context.Users.Include(u => u.Wallets).ToListAsync();
+        return await _context.Users.Include(u => u.Wallets)
+            .Include(u => u.SentTransactions)
+            .Include(u => u.ReceivedTransactions)
+            .ToListAsync();
     }
 
     public async Task<User?> GetByIdAsync(int id)
     {
-        return await _context.Users.Include(u => u.Wallets).FirstOrDefaultAsync(u => u.Id == id);
+        return await _context.Users.Include(u => u.Wallets)
+            .Include(u => u.SentTransactions)
+            .Include(u => u.ReceivedTransactions)
+            .FirstOrDefaultAsync(u => u.Id == id);
     }
 
     public async Task<User> CreateAsync(User userModel)

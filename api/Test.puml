@@ -1,0 +1,68 @@
+@startuml
+!define primary_key(x) <b>x</b>
+!define nullable(x) x
+
+class User {
+    primary_key(Id): int
+    Name: string
+    Email: string
+    Wallets: List<Wallet>
+    SentTransactions: List<Transaction>
+    ReceivedTransactions: List<Transaction>
+}
+
+class Wallet {
+    primary_key(Id): int
+    UserId: int
+    Balance: decimal
+    User: User
+}
+
+class Transaction {
+    primary_key(Id): int
+    SenderId: nullable(int)
+    ReceiverId: int
+    Type: TransactionType
+    Amount: decimal
+    Timestamp: DateTime
+    Status: TransactionStatus
+    TransactionRef: string
+    Sender: nullable(User)
+    Receiver: User
+    ParentRelations: List<TransactionRelation>
+    ChildRelations: List<TransactionRelation>
+}
+
+class TransactionRelation {
+    ParentTransactionId: int
+    ChildTransactionId: int
+    ParentTransaction: Transaction
+    ChildTransaction: Transaction
+}
+
+class TransactionDto {
+    SenderId: nullable(int)
+    ReceiverId: int
+    Type: TransactionType
+    Amount: decimal
+    Timestamp: DateTime
+    Status: TransactionStatus
+    TransactionRef: string
+}
+
+class TransactionRelationDto {
+    ParentTransactionId: int
+    ParentTransaction: TransactionDto
+    ChildTransactionId: int
+    ChildTransaction: TransactionDto
+}
+
+User "1" -- "0..*" Wallet : owns >
+User "1" -- "0..*" Transaction : sends >
+User "1" -- "0..*" Transaction : receives >
+Wallet "1" -- "1" User : belongs to >
+TransactionRelation "1" -- "1" Transaction : Parent >
+TransactionRelation "1" -- "1" Transaction : Child >
+Transaction "0..*" -- "0..*" TransactionRelation : has relations >
+
+@enduml
