@@ -20,7 +20,8 @@ public class UserController : ControllerBase
     public async Task<IActionResult> GetAll()
     {
         var users = await _userRepo.GetAllAsync();
-        return Ok(users.Select(u => u.ToUserDto()).ToList());
+        // return Ok(users.Select(u => u.ToUserDto()).ToList());
+        return Ok(users);
     }
 
     [HttpGet("GetById/{id}")]

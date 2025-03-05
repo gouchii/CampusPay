@@ -25,7 +25,7 @@ public class Transaction
 
     [Required] public TransactionStatus Status { get; set; }
 
-    [Required] [StringLength(36)] public string TransactionRef { get; set; }
+    [Required] [StringLength(50)] public string TransactionRef { get; set; } = String.Empty;
 
     //for future stuffs
     public List<TransactionRelation> ParentRelations { get; set; } = new();

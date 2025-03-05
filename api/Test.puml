@@ -1,9 +1,9 @@
 @startuml
 !define primary_key(x) <b>x</b>
 !define nullable(x) x
-
+skinparam classAttributeIconSize 0
 class User {
-    primary_key(Id): int
+    - primary_key(Id): int
     Name: string
     Email: string
     Wallets: List<Wallet>

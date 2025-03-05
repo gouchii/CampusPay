@@ -1,8 +1,12 @@
 using System.ComponentModel.DataAnnotations;
+using Microsoft.EntityFrameworkCore;
 
 namespace api.DTOs.QR;
 
 public class QrGenerateRequestDto
 {
-    [Required] public decimal Amount { get; set; }
+    [Required]
+    [Range(0.01, double.MaxValue, ErrorMessage = "Amount must be greater than zero.")]
+    [Precision(18, 4)]
+    public decimal Amount { get; set; }
 }
