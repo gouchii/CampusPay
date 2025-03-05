@@ -12,7 +12,7 @@ public class Transaction
     public User? Sender { get; set; }
 
     [Required] public int ReceiverId { get; set; }
-    public User Receiver { get; set; }
+    public User? Receiver { get; set; }
 
     [Required] public TransactionType Type { get; set; }
 
@@ -26,6 +26,10 @@ public class Transaction
     [Required] public TransactionStatus Status { get; set; }
 
     [Required] [StringLength(50)] public string TransactionRef { get; set; } = String.Empty;
+
+    [StringLength(64)]
+    public string? VerificationToken { get; set; }
+    public DateTime? TokenGeneratedAt { get; set; }
 
     //for future stuffs
     public List<TransactionRelation> ParentRelations { get; set; } = new();

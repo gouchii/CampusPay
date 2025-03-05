@@ -3,6 +3,7 @@ using System.ComponentModel.DataAnnotations;
 using System.Text.Json.Serialization;
 using api.Enums;
 using api.Models;
+using Newtonsoft.Json.Converters;
 
 namespace api.DTOs.Transaction;
 
@@ -15,7 +16,7 @@ public class TransactionDto
     public int ReceiverId { get; set; }
 
     [Required]
-    [JsonConverter(typeof(JsonStringEnumConverter))]
+    [JsonConverter(typeof(StringEnumConverter))]
     public TransactionType Type { get; set; }
 
     [Required]
@@ -24,12 +25,12 @@ public class TransactionDto
     public DateTime Timestamp { get; set; }
 
     [Required]
-    [JsonConverter(typeof(JsonStringEnumConverter))]
+    [JsonConverter(typeof(StringEnumConverter))]
     public TransactionStatus Status { get; set; }
 
     [Required]
     [StringLength(36)]
-    public string TransactionRef { get; set; }
+    public string TransactionRef { get; set; } = String.Empty;
 
     public List<TransactionRelationDto> ParentRelations { get; set; } = new();
     public List<TransactionRelationDto> ChildRelations { get; set; } = new();

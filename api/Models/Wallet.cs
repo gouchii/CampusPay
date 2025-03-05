@@ -12,5 +12,5 @@ public class Wallet
     [Precision(18, 4)]
     public decimal Balance { get; set; } = 0.0m;
 
-    public User User { get; set; }
+    public User? User { get; set; }
 }
