@@ -9,12 +9,10 @@ namespace api.Controllers;
 [ApiController]
 public class WalletController : ControllerBase
 {
-    private readonly ITransactionService _transactionService;
     private readonly IWalletRepository _walletRepo;
 
     public WalletController(IWalletRepository walletRepo, ITransactionService transactionService)
     {
-        _transactionService = transactionService;
         _walletRepo = walletRepo;
     }
 

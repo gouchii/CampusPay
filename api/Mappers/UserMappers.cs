@@ -1,4 +1,3 @@
-using api.DTOs.Transaction;
 using api.DTOs.User;
 using api.Models;
 
@@ -16,10 +15,10 @@ public static class UserMappers
             CreatedAt = userModel.CreatedAt,
             SentTransactions = userModel.SentTransactions?
                 .Select(t => t.ToTransactionDto())
-                .ToList() ?? new List<TransactionDto>(),
+                .ToList() ?? [],
             ReceivedTransactions = userModel.ReceivedTransactions?
                 .Select(t => t.ToTransactionDto())
-                .ToList() ?? new List<TransactionDto>()
+                .ToList() ?? []
         };
     }
 

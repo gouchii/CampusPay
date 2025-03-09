@@ -1,6 +1,6 @@
 using api.DTOs.QR;
+using api.DTOs.Transaction;
 using api.Interfaces;
-using api.Mappers;
 using api.Models;
 using Microsoft.AspNetCore.Mvc;
 
@@ -11,12 +11,10 @@ namespace api.Controllers;
 public class TransactionController : ControllerBase
 {
     private readonly ITransactionService _transactionService;
-    private readonly ITransactionRepository _transactionRepo;
 
-    public TransactionController(ITransactionService transactionService, ITransactionRepository transactionRepoRepo)
+    public TransactionController(ITransactionService transactionService)
     {
         _transactionService = transactionService;
-        _transactionRepo = transactionRepoRepo;
     }
 
 
@@ -41,7 +39,7 @@ public class TransactionController : ControllerBase
         {
             //todo should make this prettier
             var qrData = await _transactionService.GenerateQrCodeAsync(userId, request.Amount);
-            return Ok(new { QrCodeData = qrData });
+            return Ok(qrData);
         }
         catch (Exception ex)
         {
@@ -50,11 +48,11 @@ public class TransactionController : ControllerBase
     }
 
     [HttpPost("verifyQrScan")]
-    public async Task<IActionResult> VerifyQrScan([FromBody] string qrData)
+    public async Task<IActionResult> VerifyQrScan([FromBody] QrCodeDataDto qrData)
     {
         try
         {
-            var transactionDto = await _transactionService.VerifyQrScan(qrData);
+            var transactionDto = await _transactionService.VerifyQrScan(qrData.TransactionRef);
             return Ok(transactionDto);
         }
         catch (Exception ex)
@@ -63,6 +61,22 @@ public class TransactionController : ControllerBase
         }
 
     }
+
+    [HttpPost("ProcessQrPayment/{userId:int}")]
+    public async Task<IActionResult> ProcessQrPayment([FromRoute] int userId,[FromBody] QrPaymentRequestDto qrData)
+    {
+        try
+        {
+            var transactionResultDto = await _transactionService.ProcessQrPaymentAsync(userId, qrData.Token, qrData.TransactionRef);
+            return Ok(transactionResultDto);
+        }
+        catch (Exception ex)
+        {
+            return BadRequest(ex.Message);
+        }
+
+    }
+
     // [HttpPost("GetbyRef")]
     // public async Task<IActionResult> GetByRef([FromBody] QrCodeDataDto qrDataDto)
     // {

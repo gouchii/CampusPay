@@ -9,5 +9,5 @@ public interface ITransactionService
     Task<QrCodeDataDto> GenerateQrCodeAsync(int userId, decimal amount);
 
     Task<TransactionDto> VerifyQrScan(string transactionRef);
-    // Task<TransactionResultDto> ProcessQrPaymentAsync(int scannerId, string qrData);
+    Task<TransactionResultDto> ProcessQrPaymentAsync(int senderId, string token, string transactionRef);
 }

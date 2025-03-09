@@ -29,9 +29,15 @@ public class WalletRepository : IWalletRepository
         return await _context.Wallets.FirstOrDefaultAsync(w => w.UserId == userId);
     }
 
-    public async Task<bool> UpdateWalletAsync(Wallet walletModel)
+    public async Task<bool> UpdateBalanceAsync(Wallet walletModel)
     {
-        _context.Wallets.Update(walletModel);
+        var existingWallet = await _context.Wallets.FindAsync(walletModel.Id);
+        if (existingWallet == null)
+        {
+            return false; // Wallet not found, update failed
+        }
+
+        existingWallet.Balance = walletModel.Balance;
         return await _context.SaveChangesAsync() > 0;
     }
 }

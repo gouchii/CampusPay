@@ -32,6 +32,7 @@ public class UserRepository : IUserRepository
 
     public async Task<User> CreateAsync(User userModel)
     {
+        //todo maybe think of another way to implement this
         var defaultWallet = new Wallet
         {
             Balance = 0.0m
