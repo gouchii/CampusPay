@@ -17,27 +17,11 @@ public class TransactionController : ControllerBase
         _transactionService = transactionService;
     }
 
-
-    // [HttpPost("{scannerId}/scan")]
-    // public async Task<IActionResult> ScanQrCode([FromRoute] int scannerId, [FromBody] QrScanRequestDto scanRequest)
-    // {
-    //     try
-    //     {
-    //         var result = await _transactionService.ProcessQrPaymentAsync(scannerId, scanRequest.QrData);
-    //         return Ok(result);
-    //     }
-    //     catch (Exception ex)
-    //     {
-    //         return BadRequest(ex.Message);
-    //     }
-    // }
-
     [HttpPost("{userId}/generate-qr")]
     public async Task<IActionResult> GenerateQrCode([FromRoute] int userId, [FromBody] QrGenerateRequestDto request)
     {
         try
         {
-            //todo should make this prettier
             var qrData = await _transactionService.GenerateQrCodeAsync(userId, request.Amount);
             return Ok(qrData);
         }
@@ -76,16 +60,4 @@ public class TransactionController : ControllerBase
         }
 
     }
-
-    // [HttpPost("GetbyRef")]
-    // public async Task<IActionResult> GetByRef([FromBody] QrCodeDataDto qrDataDto)
-    // {
-    //     var transactionModel = await _transactionRepo.GetByTransactionRef(qrDataDto.TransactionRef);
-    //     if (transactionModel == null)
-    //     {
-    //         return NotFound();
-    //     }
-    //
-    //     return Ok(transactionModel.ToTransactionDto());
-    // }
 }

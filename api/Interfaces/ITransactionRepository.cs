@@ -1,5 +1,3 @@
-using api.DTOs.Transaction;
-using api.Enums;
 using api.Models;
 
 namespace api.Interfaces;
