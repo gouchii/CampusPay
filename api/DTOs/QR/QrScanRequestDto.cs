@@ -4,6 +4,5 @@ namespace api.DTOs.QR;
 
 public class QrScanRequestDto
 {
-    [Required]
-    public string QrData { get; set; } = string.Empty;
+    [Required] public string QrData { get; set; } = string.Empty;
 }

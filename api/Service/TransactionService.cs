@@ -1,78 +1,146 @@
-using System.Text;
-using System.Text.Json;
+using System.Security.Cryptography;
+using api.DTOs.Transaction;
 using api.DTOs.Wallet;
+using api.Enums;
 using api.Interfaces;
+using api.Mappers;
 using api.Models;
 
 namespace api.Service;
 
 public class TransactionService : ITransactionService
 {
-    private readonly IWalletRepository _walletRepo;
     private readonly IUserRepository _userRepo;
+    private readonly IWalletRepository _walletRepo;
+    private readonly ITransactionRepository _transactionRepository;
 
-    public TransactionService(IWalletRepository walletRepo, IUserRepository userRepo)
+    public TransactionService(IWalletRepository walletRepo, IUserRepository userRepo, ITransactionRepository transactionRepository)
     {
-        _walletRepo = walletRepo;
         _userRepo = userRepo;
+        _walletRepo = walletRepo;
+        _transactionRepository = transactionRepository;
     }
 
-    public async Task<string> GenerateQrCodeAsync(int userId, decimal amount)
+    public async Task<QrCodeDataDto> GenerateQrCodeAsync(int userId, decimal amount)
     {
         var user = await _userRepo.GetByIdAsync(userId);
         if (user == null) throw new Exception("User not found.");
 
         if (amount <= 0) throw new Exception("Amount must be greater than zero.");
 
-        var qrData = new QrCodeData
+        var transactionRef = GenerateTransactionRef();
+        var transactionModel = new Transaction()
         {
-            GeneratorId = userId,
-            Amount = amount
+            ReceiverId = userId,
+            Type = TransactionType.PaymentQr,
+            Amount = amount,
+            Status = TransactionStatus.Pending,
+            TransactionRef = transactionRef
         };
-        string json = JsonSerializer.Serialize(qrData);
-        return Convert.ToBase64String(Encoding.UTF8.GetBytes(json));
+        await _transactionRepository.CreateAsync(transactionModel);
+        var qrData = new QrCodeDataDto
+        {
+            TransactionRef = transactionRef
+        };
+        return qrData;
+    }
+
+    public async Task<TransactionDto> VerifyQrScan(string transactionRef)
+    {
+        var transactionModel = await _transactionRepository.GetByTransactionRefAsync(transactionRef);
+
+        if (transactionModel == null)
+        {
+            throw new Exception("Transaction not found");
+        }
+
+        if (transactionModel.Status != TransactionStatus.Pending) throw new Exception("Transaction Already Completed");
+
+        var verificationToken = GenerateToken();
+
+        transactionModel.VerificationToken = verificationToken;
+        transactionModel.TokenGeneratedAt = DateTime.UtcNow;
+
+        await _transactionRepository.UpdateTokenAsync(transactionModel);
+        await _transactionRepository.UpdateTokenAsync(transactionModel);
+        return transactionModel.ToTransactionDto();
     }
 
 
-    public async Task<TransactionResultDto> ProcessQrPaymentAsync(int scannerId, string qrData)
+    public async Task<TransactionResultDto> ProcessQrPaymentAsync(int senderId, string token, string transactionRef)
     {
-        QrCodeData? data;
-        try
+        //check if the transactionRef exists
+        var transactionModel = await _transactionRepository.GetByTransactionRefAsync(transactionRef);
+
+        if (transactionModel == null) throw new Exception("Transaction not found");
+
+        //check if the token matches
+        if (transactionModel.VerificationToken != token) throw new Exception("Invalid token");
+
+        //check if token is expired
+
+        if (transactionModel.TokenGeneratedAt != null && (DateTime.UtcNow - transactionModel.TokenGeneratedAt.Value).TotalMinutes > 5)
         {
-            // Step 1: Decode from Base64
-            string json = Encoding.UTF8.GetString(Convert.FromBase64String(qrData));
-
-            // Step 2: Deserialize JSON to object
-            data = JsonSerializer.Deserialize<QrCodeData>(json);
-        }
-        catch
-        {
-            throw new Exception("Invalid QR data format.");
+            throw new("Verification expired. Please re-verify.");
         }
 
-        if (data == null) throw new Exception("Failed to deserialize QR data");
+        //check if the transaction is already completed
 
-        int generatorId = data.GeneratorId;
-        decimal amount = data.Amount;
+        if (transactionModel.Status != TransactionStatus.Pending) throw new Exception("Transaction Already Completed");
+        //check if the sender's wallet or the sender exists
+        var senderWallet = await _walletRepo.GetByUserIdAsync(senderId);
+        if (senderWallet == null) throw new Exception("Sender wallet not found");
 
-        var scannerWallet = await _walletRepo.GetByUserIdAsync(scannerId);
-        var generatorWallet = await _walletRepo.GetByUserIdAsync(generatorId);
-        if (scannerId == generatorId) throw new Exception("Invalid Operation");
-        if (scannerWallet == null || generatorWallet == null) throw new Exception("One or both users do not have wallets");
+        //check if the receiver's wallet or the receiver exists
+        var receiverWallet = await _walletRepo.GetByUserIdAsync(transactionModel.ReceiverId);
+        if (receiverWallet == null) throw new Exception("Receiver wallet not found");
 
-        if (scannerWallet.Balance < amount) throw new Exception("Insufficient Balance");
 
-        scannerWallet.Balance -= amount;
-        generatorWallet.Balance += amount;
+        //check if the sender's wallet has enough funds
+        if (senderWallet.Balance < transactionModel.Amount) throw new Exception("Insufficient Balance");
 
-        await _walletRepo.UpdateWalletAsync(scannerWallet);
-        await _walletRepo.UpdateWalletAsync(generatorWallet);
+        //check if the sender is not trying to send money to themselves
+        if (senderId == transactionModel.SenderId) throw new Exception("Invalid Action");
+        //check if the transaction is already processed
 
+        //todo add some limits on how much you can send
+
+        //process transaction and deduct funds
+        senderWallet.Balance -= transactionModel.Amount;
+        receiverWallet.Balance += transactionModel.Amount;
+
+        //update wallet balances
+        await _walletRepo.UpdateBalanceAsync(senderWallet);
+        await _walletRepo.UpdateBalanceAsync(receiverWallet);
+
+        //todo send confirmation by email or sms app notification
+
+        // Proceed with payment
+        transactionModel.Status = TransactionStatus.Completed;
+        transactionModel.VerificationToken = null; // Invalidate token after successful payment
+        transactionModel.TokenGeneratedAt = null; // Clear timestamp
+        transactionModel.SenderId = senderId;
+
+        await _transactionRepository.UpdateSenderAsync(transactionModel);
+        await _transactionRepository.UpdateStatusAsync(transactionModel);
+        await _transactionRepository.UpdateTokenAsync(transactionModel);
+        await _transactionRepository.UpdateTokenTimeAsync(transactionModel);
         return new TransactionResultDto
         {
             Message = "Transaction Successful",
-            ScannerBalance = scannerWallet.Balance
+            ScannerBalance = senderWallet.Balance
         };
     }
 
+
+    private static string GenerateTransactionRef()
+    {
+        return $"TXN-{DateTime.UtcNow:yyyyMMdd}-{Guid.NewGuid().ToString("N").Substring(6)}";
+    }
+
+    private static string GenerateToken(int size = 32)
+    {
+        byte[] tokenBytes = RandomNumberGenerator.GetBytes(size);
+        return Convert.ToBase64String(tokenBytes);
+    }
 }

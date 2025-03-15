@@ -13,18 +13,26 @@ public class UserRepository : IUserRepository
     {
         _context = context;
     }
+
     public async Task<List<User>> GetAllAsync()
     {
-        return await _context.Users.Include(u => u.Wallets).ToListAsync();
+        return await _context.Users.Include(u => u.Wallets)
+            .Include(u => u.SentTransactions)
+            .Include(u => u.ReceivedTransactions)
+            .ToListAsync();
     }
 
     public async Task<User?> GetByIdAsync(int id)
     {
-        return await _context.Users.Include(u => u.Wallets).FirstOrDefaultAsync(u => u.Id == id);
+        return await _context.Users.Include(u => u.Wallets)
+            .Include(u => u.SentTransactions)
+            .Include(u => u.ReceivedTransactions)
+            .FirstOrDefaultAsync(u => u.Id == id);
     }
 
     public async Task<User> CreateAsync(User userModel)
     {
+        //todo maybe think of another way to implement this
         var defaultWallet = new Wallet
         {
             Balance = 0.0m
@@ -39,10 +47,7 @@ public class UserRepository : IUserRepository
     public async Task<User?> DeleteAsync(int id)
     {
         var userModel = await _context.Users.FirstOrDefaultAsync(x => x.Id == id);
-        if (userModel == null)
-        {
-            return null;
-        }
+        if (userModel == null) return null;
 
         _context.Users.Remove(userModel);
         await _context.SaveChangesAsync();
@@ -52,10 +57,7 @@ public class UserRepository : IUserRepository
     public async Task<User?> UpdateAsync(int id, User userModel)
     {
         var existingUser = await _context.Users.FindAsync(id);
-        if (existingUser == null)
-        {
-            return null;
-        }
+        if (existingUser == null) return null;
 
         existingUser.Name = userModel.Name;
         existingUser.EmailAddress = userModel.EmailAddress;
@@ -63,6 +65,4 @@ public class UserRepository : IUserRepository
         await _context.SaveChangesAsync();
         return existingUser;
     }
-
-
 }
