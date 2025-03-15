@@ -25,7 +25,7 @@ public class UserController : ControllerBase
     }
 
     [HttpGet("GetById/{id}")]
-    public async Task<IActionResult> GetById([FromRoute] int id)
+    public async Task<IActionResult> GetById([FromRoute] string id)
     {
         var user = await _userRepo.GetByIdAsync(id);
 
@@ -45,7 +45,7 @@ public class UserController : ControllerBase
 
     [HttpPut]
     [Route("Update/{id}")]
-    public async Task<IActionResult> Update([FromRoute] int id, [FromBody] UpdateUserRequestDto userUpdateDto)
+    public async Task<IActionResult> Update([FromRoute] string id, [FromBody] UpdateUserRequestDto userUpdateDto)
     {
         var user = await _userRepo.UpdateAsync(id, userUpdateDto.ToUserFromUpdateDto());
         if (user == null) return NotFound("User not found");
@@ -55,7 +55,7 @@ public class UserController : ControllerBase
 
     [HttpDelete]
     [Route("Delete/{id}")]
-    public async Task<IActionResult> Delete([FromRoute] int id)
+    public async Task<IActionResult> Delete([FromRoute] string id)
     {
         var userModel = await _userRepo.DeleteAsync(id);
         if (userModel == null) return NotFound("User does not exits");

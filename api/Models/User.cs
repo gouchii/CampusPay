@@ -1,21 +1,23 @@
 using System.ComponentModel.DataAnnotations;
+using Microsoft.AspNetCore.Identity;
 
 namespace api.Models;
 
-public class User
+public class User : IdentityUser
 {
-    [Key]
-    public int Id { get; set; }
-
+    [Required]
     [MaxLength(100)]
     public string Name { get; set; } = string.Empty;
 
-    [MaxLength(254)]
-    public string EmailAddress { get; set; } = string.Empty;
-    public DateTime CreatedAt { get; set; } = DateTime.UtcNow;
+    public DateTime CreatedAt { get; init; } = DateTime.UtcNow;
+
+    [MaxLength(50)]
+    public string? RfidTag { get; set; } // Optional RFID, nullable until registered
+
+    [MaxLength(50)]
+    public string? PinHash { get; set; } // Hashed PIN, nullable until registered
+
     public List<Wallet> Wallets { get; set; } = new();
-
     public List<Transaction> SentTransactions { get; set; } = new();
-
     public List<Transaction> ReceivedTransactions { get; set; } = new();
 }

@@ -10,10 +10,9 @@ namespace api.DTOs.Transaction;
 public class TransactionDto
 {
 
-    public int? SenderId { get; set; }
+    public string? SenderId { get; set; }
 
-    [Required]
-    public int ReceiverId { get; set; }
+    [Required] public string ReceiverId { get; set; } = string.Empty;
 
     [Required]
     [JsonConverter(typeof(StringEnumConverter))]

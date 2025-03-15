@@ -1,16 +1,19 @@
 using System.ComponentModel.DataAnnotations;
 using Microsoft.EntityFrameworkCore;
 
+
 namespace api.Models;
 
 public class Wallet
 {
     [Key]
-    public int Id { get; set; }
+    public int Id { get; init; }
 
-    public int UserId { get; set; }
+    [MaxLength(450)]
+    public string UserId { get; init; } = string.Empty;
+
     [Precision(18, 4)]
-    public decimal Balance { get; set; } = 0.0m;
+    public decimal Balance { get; set; }
 
     public User? User { get; set; }
 }

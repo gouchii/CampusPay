@@ -10,7 +10,6 @@ public static class UserMappers
         return new UserDto
         {
             Name = userModel.Name,
-            EmailAddress = userModel.EmailAddress,
             Wallets = userModel.Wallets.Select(w => w.ToWalletDto()).ToList(),
             CreatedAt = userModel.CreatedAt,
             SentTransactions = userModel.SentTransactions?
@@ -22,12 +21,14 @@ public static class UserMappers
         };
     }
 
+    //todo update this whole request dto
+
+
     public static User ToUserFromCreateDto(this CreateUserRequestDto userDto)
     {
         return new User
         {
             Name = userDto.Name,
-            EmailAddress = userDto.EmailAddress
         };
     }
 
@@ -36,7 +37,6 @@ public static class UserMappers
         return new User
         {
             Name = userDto.Name,
-            EmailAddress = userDto.EmailAddress
         };
     }
 }

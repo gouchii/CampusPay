@@ -19,12 +19,12 @@ public class WalletRepository : IWalletRepository
         return await _context.Wallets.ToListAsync();
     }
 
-    public async Task<List<Wallet>> GetAllByUserIdAsync(int userId)
+    public async Task<List<Wallet>> GetAllByUserIdAsync(string userId)
     {
         return await _context.Wallets.Where(w => w.UserId == userId).ToListAsync();
     }
 
-    public async Task<Wallet?> GetByUserIdAsync(int userId)
+    public async Task<Wallet?> GetByUserIdAsync(string userId)
     {
         return await _context.Wallets.FirstOrDefaultAsync(w => w.UserId == userId);
     }

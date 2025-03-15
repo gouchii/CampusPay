@@ -21,7 +21,7 @@ public class TransactionService : ITransactionService
         _transactionRepository = transactionRepository;
     }
 
-    public async Task<QrCodeDataDto> GenerateQrCodeAsync(int userId, decimal amount)
+    public async Task<QrCodeDataDto> GenerateQrCodeAsync(string userId, decimal amount)
     {
         var user = await _userRepo.GetByIdAsync(userId);
         if (user == null) throw new Exception("User not found.");
@@ -67,7 +67,7 @@ public class TransactionService : ITransactionService
     }
 
 
-    public async Task<TransactionResultDto> ProcessQrPaymentAsync(int senderId, string token, string transactionRef)
+    public async Task<TransactionResultDto> ProcessQrPaymentAsync(string senderId, string token, string transactionRef)
     {
         //check if the transactionRef exists
         var transactionModel = await _transactionRepository.GetByTransactionRefAsync(transactionRef);
@@ -81,7 +81,7 @@ public class TransactionService : ITransactionService
 
         if (transactionModel.TokenGeneratedAt != null && (DateTime.UtcNow - transactionModel.TokenGeneratedAt.Value).TotalMinutes > 5)
         {
-            throw new("Verification expired. Please re-verify.");
+            throw new Exception("Verification expired. Please re-verify.");
         }
 
         //check if the transaction is already completed

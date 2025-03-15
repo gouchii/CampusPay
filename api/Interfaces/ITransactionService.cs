@@ -6,8 +6,8 @@ namespace api.Interfaces;
 
 public interface ITransactionService
 {
-    Task<QrCodeDataDto> GenerateQrCodeAsync(int userId, decimal amount);
+    Task<QrCodeDataDto> GenerateQrCodeAsync(string userId, decimal amount);
 
     Task<TransactionDto> VerifyQrScan(string transactionRef);
-    Task<TransactionResultDto> ProcessQrPaymentAsync(int senderId, string token, string transactionRef);
+    Task<TransactionResultDto> ProcessQrPaymentAsync(string senderId, string token, string transactionRef);
 }

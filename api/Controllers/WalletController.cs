@@ -24,7 +24,7 @@ public class WalletController : ControllerBase
     }
 
     [HttpGet("GetAllByUserId/{userId}")]
-    public async Task<IActionResult> GetAllByUserId([FromRoute] int userId)
+    public async Task<IActionResult> GetAllByUserId([FromRoute] string userId)
     {
         var wallets = await _walletRepo.GetAllByUserIdAsync(userId);
 
@@ -32,7 +32,7 @@ public class WalletController : ControllerBase
     }
 
     [HttpGet("GetByUserId/{userId}")]
-    public async Task<IActionResult> GetByUserId([FromRoute] int userId)
+    public async Task<IActionResult> GetByUserId([FromRoute] string userId)
     {
         var wallet = await _walletRepo.GetByUserIdAsync(userId);
 

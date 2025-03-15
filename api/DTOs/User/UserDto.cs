@@ -6,7 +6,6 @@ namespace api.DTOs.User;
 public class UserDto
 {
     public string Name { get; set; } = string.Empty;
-    public string EmailAddress { get; set; } = string.Empty;
     public DateTime CreatedAt { get; set; }
     public List<WalletDto> Wallets { get; set; }
 

@@ -18,7 +18,7 @@ public class TransactionController : ControllerBase
     }
 
     [HttpPost("{userId}/generate-qr")]
-    public async Task<IActionResult> GenerateQrCode([FromRoute] int userId, [FromBody] QrGenerateRequestDto request)
+    public async Task<IActionResult> GenerateQrCode([FromRoute] string userId, [FromBody] QrGenerateRequestDto request)
     {
         try
         {
@@ -47,7 +47,7 @@ public class TransactionController : ControllerBase
     }
 
     [HttpPost("ProcessQrPayment/{userId:int}")]
-    public async Task<IActionResult> ProcessQrPayment([FromRoute] int userId,[FromBody] QrPaymentRequestDto qrData)
+    public async Task<IActionResult> ProcessQrPayment([FromRoute] string userId,[FromBody] QrPaymentRequestDto qrData)
     {
         try
         {

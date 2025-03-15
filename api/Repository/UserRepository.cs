@@ -22,7 +22,7 @@ public class UserRepository : IUserRepository
             .ToListAsync();
     }
 
-    public async Task<User?> GetByIdAsync(int id)
+    public async Task<User?> GetByIdAsync(string id)
     {
         return await _context.Users.Include(u => u.Wallets)
             .Include(u => u.SentTransactions)
@@ -44,7 +44,7 @@ public class UserRepository : IUserRepository
         return userModel;
     }
 
-    public async Task<User?> DeleteAsync(int id)
+    public async Task<User?> DeleteAsync(string id)
     {
         var userModel = await _context.Users.FirstOrDefaultAsync(x => x.Id == id);
         if (userModel == null) return null;
@@ -54,13 +54,12 @@ public class UserRepository : IUserRepository
         return userModel;
     }
 
-    public async Task<User?> UpdateAsync(int id, User userModel)
+    public async Task<User?> UpdateAsync(string id, User userModel)
     {
         var existingUser = await _context.Users.FindAsync(id);
         if (existingUser == null) return null;
 
         existingUser.Name = userModel.Name;
-        existingUser.EmailAddress = userModel.EmailAddress;
 
         await _context.SaveChangesAsync();
         return existingUser;
