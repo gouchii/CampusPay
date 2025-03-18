@@ -8,7 +8,7 @@ using Microsoft.EntityFrameworkCore.Migrations;
 namespace api.Migrations
 {
     /// <inheritdoc />
-    public partial class init : Migration
+    public partial class InitialCreate : Migration
     {
         /// <inheritdoc />
         protected override void Up(MigrationBuilder migrationBuilder)
@@ -200,7 +200,8 @@ namespace api.Migrations
                     Id = table.Column<int>(type: "int", nullable: false)
                         .Annotation("SqlServer:Identity", "1, 1"),
                     UserId = table.Column<string>(type: "nvarchar(450)", maxLength: 450, nullable: false),
-                    Balance = table.Column<decimal>(type: "decimal(18,4)", precision: 18, scale: 4, nullable: false)
+                    Balance = table.Column<decimal>(type: "decimal(18,4)", precision: 18, scale: 4, nullable: false),
+                    Type = table.Column<int>(type: "int", nullable: false)
                 },
                 constraints: table =>
                 {
@@ -241,9 +242,9 @@ namespace api.Migrations
                 columns: new[] { "Id", "ConcurrencyStamp", "Name", "NormalizedName" },
                 values: new object[,]
                 {
-                    { "4a37f5fe-ea23-4309-97b6-87b3b1413fb2", null, "User", "USER" },
-                    { "e8568ac1-6c86-48f9-820e-44529fd1f253", null, "Merchant", "MERCHANT" },
-                    { "ffbe4dca-ce84-43fb-8a70-a2c89b03e24a", null, "Admin", "ADMIN" }
+                    { "67f35675-8797-4b13-97e0-b77263fdbf40", null, "Admin", "ADMIN" },
+                    { "7b3eeb49-ee4c-44d4-918f-dfe8d7998f2d", null, "Merchant", "MERCHANT" },
+                    { "d509b3d8-890b-4012-aa6c-7a021e2e72be", null, "User", "USER" }
                 });
 
             migrationBuilder.CreateIndex(

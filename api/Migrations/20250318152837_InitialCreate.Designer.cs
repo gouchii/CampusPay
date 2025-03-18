@@ -12,8 +12,8 @@ using api.Data;
 namespace api.Migrations
 {
     [DbContext(typeof(AppDbContext))]
-    [Migration("20250315153628_init")]
-    partial class init
+    [Migration("20250318152837_InitialCreate")]
+    partial class InitialCreate
     {
         /// <inheritdoc />
         protected override void BuildTargetModel(ModelBuilder modelBuilder)
@@ -54,19 +54,19 @@ namespace api.Migrations
                     b.HasData(
                         new
                         {
-                            Id = "ffbe4dca-ce84-43fb-8a70-a2c89b03e24a",
+                            Id = "67f35675-8797-4b13-97e0-b77263fdbf40",
                             Name = "Admin",
                             NormalizedName = "ADMIN"
                         },
                         new
                         {
-                            Id = "e8568ac1-6c86-48f9-820e-44529fd1f253",
+                            Id = "7b3eeb49-ee4c-44d4-918f-dfe8d7998f2d",
                             Name = "Merchant",
                             NormalizedName = "MERCHANT"
                         },
                         new
                         {
-                            Id = "4a37f5fe-ea23-4309-97b6-87b3b1413fb2",
+                            Id = "d509b3d8-890b-4012-aa6c-7a021e2e72be",
                             Name = "User",
                             NormalizedName = "USER"
                         });
@@ -346,6 +346,9 @@ namespace api.Migrations
                     b.Property<decimal>("Balance")
                         .HasPrecision(18, 4)
                         .HasColumnType("decimal(18,4)");
+
+                    b.Property<int>("Type")
+                        .HasColumnType("int");
 
                     b.Property<string>("UserId")
                         .IsRequired()
