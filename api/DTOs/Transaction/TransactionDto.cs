@@ -12,26 +12,21 @@ public class TransactionDto
 
     public string? SenderId { get; set; }
 
-    [Required] public string ReceiverId { get; set; } = string.Empty;
+    public string ReceiverId { get; set; } = string.Empty;
 
-    [Required]
     [JsonConverter(typeof(StringEnumConverter))]
     public TransactionType Type { get; set; }
 
-    [Required]
     public decimal Amount { get; set; }
 
     public DateTime Timestamp { get; set; }
 
-    [Required]
     [JsonConverter(typeof(StringEnumConverter))]
     public TransactionStatus Status { get; set; }
 
     public string? VerificationToken { get; set; }
     public DateTime? TokenGeneratedAt { get; set; }
 
-    [Required]
-    [StringLength(36)]
     public string TransactionRef { get; set; } = string.Empty;
 
     public List<TransactionRelationDto> ParentRelations { get; set; } = new();

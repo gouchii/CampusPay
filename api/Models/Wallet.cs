@@ -1,4 +1,5 @@
 using System.ComponentModel.DataAnnotations;
+using api.Enums;
 using Microsoft.EntityFrameworkCore;
 
 
@@ -6,7 +7,6 @@ namespace api.Models;
 
 public class Wallet
 {
-    [Key]
     public int Id { get; init; }
 
     [MaxLength(450)]
@@ -16,4 +16,7 @@ public class Wallet
     public decimal Balance { get; set; }
 
     public User? User { get; set; }
+
+    [Required]
+    public WalletType Type { get; set; }
 }

@@ -38,7 +38,7 @@ public class UserRepository : IUserRepository
             Balance = 0.0m
         };
 
-        userModel.Wallets.Add(defaultWallet);
+        // userModel.Wallets.Add(defaultWallet);
         await _context.Users.AddAsync(userModel);
         await _context.SaveChangesAsync();
         return userModel;

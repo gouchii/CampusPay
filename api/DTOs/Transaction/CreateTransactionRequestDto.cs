@@ -8,9 +8,8 @@ namespace api.DTOs.Transaction;
 public class CreateTransactionRequestDto
 {
 
-
     [Required]
-    public int ReceiverId { get; set; }
+    public string? ReceiverId { get; set; }
 
     [Required]
     [JsonConverter(typeof(StringEnumConverter))]
@@ -18,8 +17,4 @@ public class CreateTransactionRequestDto
 
     [Required]
     public decimal Amount { get; set; }
-
-
-
-
 }

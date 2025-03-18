@@ -22,6 +22,9 @@ public class TransactionController : ControllerBase
     {
         try
         {
+            if (!ModelState.IsValid)
+                return BadRequest(ModelState);
+
             var qrData = await _transactionService.GenerateQrCodeAsync(userId, request.Amount);
             return Ok(qrData);
         }
@@ -36,6 +39,9 @@ public class TransactionController : ControllerBase
     {
         try
         {
+            if (!ModelState.IsValid)
+                return BadRequest(ModelState);
+
             var transactionDto = await _transactionService.VerifyQrScan(qrData.TransactionRef);
             return Ok(transactionDto);
         }
@@ -46,11 +52,14 @@ public class TransactionController : ControllerBase
 
     }
 
-    [HttpPost("ProcessQrPayment/{userId:int}")]
+    [HttpPost("ProcessQrPayment/{userId}")]
     public async Task<IActionResult> ProcessQrPayment([FromRoute] string userId,[FromBody] QrPaymentRequestDto qrData)
     {
         try
         {
+            if (!ModelState.IsValid)
+                return BadRequest(ModelState);
+
             var transactionResultDto = await _transactionService.ProcessQrPaymentAsync(userId, qrData.Token, qrData.TransactionRef);
             return Ok(transactionResultDto);
         }

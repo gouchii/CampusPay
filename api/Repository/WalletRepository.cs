@@ -1,4 +1,5 @@
 using api.Data;
+using api.Enums;
 using api.Interfaces;
 using api.Models;
 using Microsoft.EntityFrameworkCore;
@@ -39,5 +40,33 @@ public class WalletRepository : IWalletRepository
 
         existingWallet.Balance = walletModel.Balance;
         return await _context.SaveChangesAsync() > 0;
+    }
+
+    //todo redo this
+    public async Task<Wallet?> CreateWalletAsync(string userId, WalletType type = WalletType.Default)
+    {
+        var user = await _context.Users.FirstOrDefaultAsync(u => u.Id == userId);
+        if (user == null)
+        {
+            throw new Exception("User does not exist");
+        }
+
+        var existingWallet = await _context.Wallets
+            .FirstOrDefaultAsync(w => w.UserId == userId && w.Type == type);
+
+        if (existingWallet != null)
+        {
+            throw new Exception($"User already has a wallet of type {type}");
+        }
+
+        var wallet = new Wallet
+        {
+            UserId = userId,
+            Type = type,
+            Balance = 0.0m,
+        };
+        await _context.Wallets.AddAsync(wallet);
+        await _context.SaveChangesAsync();
+        return wallet;
     }
 }

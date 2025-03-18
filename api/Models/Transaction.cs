@@ -19,7 +19,7 @@ public class Transaction
     [Required] public TransactionType Type { get; init; }
 
     [Required]
-    [Range(0.01, double.MaxValue, ErrorMessage = "Amount must be greater than zero.")]
+    [Range(0.01, double.MaxValue)]
     [Precision(18, 4)]
     public decimal Amount { get; init; }
 

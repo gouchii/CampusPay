@@ -26,7 +26,8 @@ public class TransactionService : ITransactionService
         var user = await _userRepo.GetByIdAsync(userId);
         if (user == null) throw new Exception("User not found.");
 
-        if (amount <= 0) throw new Exception("Amount must be greater than zero.");
+        //redundant??
+        // if (amount <= 0) throw new Exception("Amount must be greater than zero.");
 
         var transactionRef = GenerateTransactionRef();
         var transactionModel = new Transaction()
@@ -54,7 +55,7 @@ public class TransactionService : ITransactionService
             throw new Exception("Transaction not found");
         }
 
-        if (transactionModel.Status != TransactionStatus.Pending) throw new Exception("Transaction Already Completed");
+        if (transactionModel.Status != TransactionStatus.Pending) throw new Exception("Transaction Status is not Pending");
 
         var verificationToken = GenerateToken();
 
@@ -101,7 +102,9 @@ public class TransactionService : ITransactionService
 
         //check if the sender is not trying to send money to themselves
         if (senderId == transactionModel.SenderId) throw new Exception("Invalid Action");
+
         //check if the transaction is already processed
+        if (transactionModel.Status == TransactionStatus.Completed) throw new Exception("Transaction Already Completed");
 
         //todo add some limits on how much you can send
 
