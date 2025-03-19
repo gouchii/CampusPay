@@ -25,7 +25,11 @@ public class UserController : ControllerBase
     [HttpGet("GetAll")]
     public async Task<IActionResult> GetAll()
     {
-        var users = await _userManager.Users.Include(u => u.Wallets).ToListAsync();
+        var users = await _userManager.Users.
+            Include(u => u.Wallets)
+            .Include(u => u.SentTransactions)
+            .Include(u => u. ReceivedTransactions)
+            .ToListAsync();
 
         var userDto = new List<UserDto>();
         foreach (var user in users)

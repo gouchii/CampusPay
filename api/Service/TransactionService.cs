@@ -104,7 +104,7 @@ public class TransactionService : ITransactionService
         if (senderWallet.Balance < transactionModel.Amount) throw new Exception("Insufficient Balance");
 
         //check if the sender is not trying to send money to themselves
-        if (senderId == transactionModel.SenderId) throw new Exception("Invalid Action");
+        if (senderId == transactionModel.ReceiverId) throw new Exception("Invalid Action");
 
         //check if the transaction is already processed
         if (transactionModel.Status == TransactionStatus.Completed) throw new Exception("Transaction Already Completed");
@@ -134,7 +134,6 @@ public class TransactionService : ITransactionService
             nameof(Transaction.VerificationToken),
             nameof(Transaction.TokenGeneratedAt)
         });
-
         return new TransactionResultDto
         {
             Message = "Transaction Successful",

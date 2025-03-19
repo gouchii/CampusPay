@@ -25,7 +25,6 @@ public class TransactionRepository : ITransactionRepository
         return await _context.Transactions.FirstOrDefaultAsync(t => t.TransactionRef == transactionRef);
     }
 
-    //todo remove other update methods and just use this one, do the same in other repositories
     public async Task<Transaction?> UpdateAsync(Transaction transactionModel, params string[] updatedProperties)
     {
         var existingTransaction = await _context.Transactions.FindAsync(transactionModel.Id);
