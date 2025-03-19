@@ -9,7 +9,8 @@ public static class WalletMappers
     {
         return new WalletDto
         {
-            UserId = walletModel.UserId,
+            CreatedAt = walletModel.CreatedAt,
+            Type = walletModel.Type,
             Balance = walletModel.Balance
         };
     }

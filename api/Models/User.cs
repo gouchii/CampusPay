@@ -7,15 +7,15 @@ public class User : IdentityUser
 {
     [Required]
     [MaxLength(100)]
-    public string Name { get; set; } = string.Empty;
+    public string FullName { get; set; } = string.Empty;
 
-    public DateTime CreatedAt { get; init; } = DateTime.UtcNow;
-
-    [MaxLength(50)]
-    public string? RfidTag { get; set; } // Optional RFID, nullable until registered
+    public DateTime CreatedAt { get; init; }
 
     [MaxLength(50)]
-    public string? PinHash { get; set; } // Hashed PIN, nullable until registered
+    public string? RfidTag { get; set; }
+
+    [MaxLength(50)]
+    public string? PinHash { get; set; }
 
     public List<Wallet> Wallets { get; set; } = new();
     public List<Transaction> SentTransactions { get; set; } = new();

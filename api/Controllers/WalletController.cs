@@ -1,10 +1,11 @@
-using api.DTOs.QR;
+using api.Extensions;
 using api.Interfaces;
 using api.Mappers;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 
 namespace api.Controllers;
-
+[Authorize]
 [Route("api/wallet")]
 [ApiController]
 public class WalletController : ControllerBase
@@ -16,6 +17,7 @@ public class WalletController : ControllerBase
         _walletRepo = walletRepo;
     }
 
+    [Authorize(Roles = "Admin")]
     [HttpGet("GetAll")]
     public async Task<IActionResult> GetAll()
     {
@@ -23,7 +25,8 @@ public class WalletController : ControllerBase
         return Ok(wallets.Select(w => w.ToWalletDto()));
     }
 
-    [HttpGet("GetAllByUserId/{userId}")]
+    [Authorize(Roles = "Admin")]
+    [HttpGet("GetAllWalletByUserId/{userId}")]
     public async Task<IActionResult> GetAllByUserId([FromRoute] string userId)
     {
         var wallets = await _walletRepo.GetAllByUserIdAsync(userId);
@@ -31,11 +34,21 @@ public class WalletController : ControllerBase
         return Ok(wallets.Select(w => w.ToWalletDto()));
     }
 
-    [HttpGet("GetByUserId/{userId}")]
-    public async Task<IActionResult> GetByUserId([FromRoute] string userId)
+    [Authorize(Policy = "RequireMerchantOrHigher")]
+    [HttpGet("GetWallet")]
+    public async Task<IActionResult> GetByUserId()
     {
+        var userId = User.GetUserId();
+        if (userId == null)
+        {
+            return BadRequest();
+        }
         var wallet = await _walletRepo.GetByUserIdAsync(userId);
 
+        if (wallet == null)
+        {
+            return BadRequest();
+        }
         return Ok(wallet.ToWalletDto());
     }
 }

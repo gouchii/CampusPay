@@ -1,7 +1,11 @@
+using api.DTOs.Account;
 using api.DTOs.User;
 using api.Interfaces;
 using api.Mappers;
+using api.Models;
+using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.EntityFrameworkCore;
 
 namespace api.Controllers;
 
@@ -9,57 +13,43 @@ namespace api.Controllers;
 [ApiController]
 public class UserController : ControllerBase
 {
-    private readonly IUserRepository _userRepo;
+    private readonly IUserService _userService;
+    private readonly UserManager<User> _userManager;
 
-    public UserController(IUserRepository userRepo)
+    public UserController(IUserService userService, UserManager<User> userManager)
     {
-        _userRepo = userRepo;
+        _userService = userService;
+        _userManager = userManager;
     }
 
     [HttpGet("GetAll")]
     public async Task<IActionResult> GetAll()
     {
-        var users = await _userRepo.GetAllAsync();
-        return Ok(users.Select(u => u.ToUserDto()).ToList());
-        // return Ok(users);
+        var users = await _userManager.Users.Include(u => u.Wallets).ToListAsync();
+
+        var userDto = new List<UserDto>();
+        foreach (var user in users)
+        {
+            var roles = await _userManager.GetRolesAsync(user);
+            userDto.Add(user.ToUserDto(roles.FirstOrDefault() ?? "No Role"));
+        }
+
+        return Ok(userDto);
     }
 
-    [HttpGet("GetById/{id}")]
-    public async Task<IActionResult> GetById([FromRoute] string id)
+    [HttpGet("Get")]
+    public async Task<IActionResult> Get()
     {
-        var user = await _userRepo.GetByIdAsync(id);
+        var users = await _userManager.Users.Include(u => u.Wallets).ToListAsync();
 
-        if (user == null) return NotFound();
+        var userDto = new List<UserDto>();
+        foreach (var user in users)
+        {
+            var roles = await _userManager.GetRolesAsync(user);
+            userDto.Add(user.ToUserDto(roles.FirstOrDefault() ?? "No Role"));
+        }
 
-        return Ok(user);
+        return Ok(userDto);
     }
 
-    [HttpPost("Register")]
-    public async Task<IActionResult> Create([FromBody] CreateUserRequestDto userCreateDto)
-    {
-        var userModel = userCreateDto.ToUserFromCreateDto();
-
-        await _userRepo.CreateAsync(userModel);
-        return CreatedAtAction(nameof(GetById), new { id = userModel.Id }, userModel);
-    }
-
-    [HttpPut]
-    [Route("Update/{id}")]
-    public async Task<IActionResult> Update([FromRoute] string id, [FromBody] UpdateUserRequestDto userUpdateDto)
-    {
-        var user = await _userRepo.UpdateAsync(id, userUpdateDto.ToUserFromUpdateDto());
-        if (user == null) return NotFound("User not found");
-
-        return Ok(user.ToUserDto());
-    }
-
-    [HttpDelete]
-    [Route("Delete/{id}")]
-    public async Task<IActionResult> Delete([FromRoute] string id)
-    {
-        var userModel = await _userRepo.DeleteAsync(id);
-        if (userModel == null) return NotFound("User does not exits");
-
-        return Ok(userModel);
-    }
 }

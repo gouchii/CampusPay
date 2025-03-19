@@ -12,6 +12,7 @@ public class Wallet
     [MaxLength(450)]
     public string UserId { get; init; } = string.Empty;
 
+    public DateTime CreatedAt { get; init; }
     [Precision(18, 4)]
     public decimal Balance { get; set; }
 

@@ -25,9 +25,9 @@ public class WalletRepository : IWalletRepository
         return await _context.Wallets.Where(w => w.UserId == userId).ToListAsync();
     }
 
-    public async Task<Wallet?> GetByUserIdAsync(string userId)
+    public async Task<Wallet?> GetByUserIdAsync(string userId, WalletType type = WalletType.Default)
     {
-        return await _context.Wallets.FirstOrDefaultAsync(w => w.UserId == userId);
+        return await _context.Wallets.FirstOrDefaultAsync(w => w.UserId == userId && w.Type == type);
     }
 
     public async Task<bool> UpdateBalanceAsync(Wallet walletModel)
@@ -35,14 +35,12 @@ public class WalletRepository : IWalletRepository
         var existingWallet = await _context.Wallets.FindAsync(walletModel.Id);
         if (existingWallet == null)
         {
-            return false; // Wallet not found, update failed
+            return false;
         }
-
         existingWallet.Balance = walletModel.Balance;
         return await _context.SaveChangesAsync() > 0;
     }
 
-    //todo redo this
     public async Task<Wallet?> CreateWalletAsync(string userId, WalletType type = WalletType.Default)
     {
         var user = await _context.Users.FirstOrDefaultAsync(u => u.Id == userId);

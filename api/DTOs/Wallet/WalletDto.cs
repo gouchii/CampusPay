@@ -1,7 +1,15 @@
+using api.Enums;
+using Newtonsoft.Json;
+using Newtonsoft.Json.Converters;
+
 namespace api.DTOs.Wallet;
 
 public class WalletDto
 {
-    public string UserId { get; set; } = string.Empty;
+    public DateTime CreatedAt { get; init; }
+
+    [JsonConverter(typeof(StringEnumConverter))]
+    public WalletType Type { get; set; }
+
     public decimal Balance { get; set; }
 }

@@ -1,5 +1,6 @@
 using api.DTOs.QR;
 using api.DTOs.Transaction;
+using api.Extensions;
 using api.Interfaces;
 using api.Models;
 using Microsoft.AspNetCore.Mvc;
@@ -17,13 +18,19 @@ public class TransactionController : ControllerBase
         _transactionService = transactionService;
     }
 
-    [HttpPost("{userId}/generate-qr")]
-    public async Task<IActionResult> GenerateQrCode([FromRoute] string userId, [FromBody] QrGenerateRequestDto request)
+    [HttpPost("generate-qr")]
+    public async Task<IActionResult> GenerateQrCode([FromBody] QrGenerateRequestDto request)
     {
         try
         {
             if (!ModelState.IsValid)
                 return BadRequest(ModelState);
+
+            var userId = User.GetUserId();
+            if (userId == null)
+            {
+                return BadRequest();
+            }
 
             var qrData = await _transactionService.GenerateQrCodeAsync(userId, request.Amount);
             return Ok(qrData);
@@ -49,16 +56,21 @@ public class TransactionController : ControllerBase
         {
             return BadRequest(ex.Message);
         }
-
     }
 
-    [HttpPost("ProcessQrPayment/{userId}")]
-    public async Task<IActionResult> ProcessQrPayment([FromRoute] string userId,[FromBody] QrPaymentRequestDto qrData)
+    [HttpPost("ProcessQrPayment")]
+    public async Task<IActionResult> ProcessQrPayment([FromBody] QrPaymentRequestDto qrData)
     {
         try
         {
             if (!ModelState.IsValid)
                 return BadRequest(ModelState);
+
+            var userId = User.GetUserId();
+            if (userId == null)
+            {
+                return BadRequest();
+            }
 
             var transactionResultDto = await _transactionService.ProcessQrPaymentAsync(userId, qrData.Token, qrData.TransactionRef);
             return Ok(transactionResultDto);
@@ -67,6 +79,5 @@ public class TransactionController : ControllerBase
         {
             return BadRequest(ex.Message);
         }
-
     }
 }

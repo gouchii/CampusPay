@@ -65,6 +65,18 @@ public class AppDbContext : IdentityDbContext<User>
             .HasIndex(u => u.RfidTag)
             .IsUnique(); // Ensures no duplicate RFID registrations
 
+        modelBuilder.Entity<User>()
+            .Property(u => u.CreatedAt)
+            .HasDefaultValueSql("GETDATE()");
+
+        modelBuilder.Entity<Transaction>()
+            .Property(t => t.Timestamp)
+            .HasDefaultValueSql("GETDATE()");
+
+        modelBuilder.Entity<Wallet>()
+            .Property(w => w.CreatedAt)
+            .HasDefaultValueSql("GETDATE()");
+
         // **Seeding Default Roles**
         List<IdentityRole> roles = new List<IdentityRole>
         {

@@ -2,9 +2,12 @@ using System.Text;
 using api.Data;
 using api.Interfaces;
 using api.Models;
+using api.Override;
 using api.Repository;
 using api.Service;
+using api.Service.Authorization;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.IdentityModel.Tokens;
@@ -14,9 +17,10 @@ using Newtonsoft.Json.Converters;
 
 var builder = WebApplication.CreateBuilder(args);
 
-builder.Services.AddDbContext<AppDbContext>(options => { options.UseSqlServer(builder.Configuration.GetConnectionString("DefaultConnection")); });
-// Add services to the container.
-// Learn more about configuring Swagger/OpenAPI at https://aka.ms/aspnetcore/swashbuckle
+builder.Services.AddDbContext<AppDbContext>(options =>
+{
+    options.UseSqlServer(builder.Configuration.GetConnectionString("DefaultConnection"));
+});
 
 builder.Services.AddIdentity<User, IdentityRole>(options =>
     {
@@ -29,8 +33,9 @@ builder.Services.AddIdentity<User, IdentityRole>(options =>
     .AddEntityFrameworkStores<AppDbContext>()
     .AddDefaultTokenProviders();
 
-var jwtSettings = builder.Configuration.GetSection("JwtSettings");
-var key = Encoding.UTF8.GetBytes(jwtSettings["Secret"]!);
+var jwtSettings = builder.Configuration.GetSection("JWT");
+//todo add a null check on signing key
+var key = Encoding.UTF8.GetBytes(jwtSettings["SigningKey"]!);
 
 builder.Services.AddAuthentication(options =>
     {
@@ -97,13 +102,23 @@ builder.Services.AddSwaggerGen(options =>
     });
 });
 
-builder.Services.AddScoped<IUserRepository, UserRepository>();
+builder.Services.AddAuthorization(options =>
+{
+    options.AddPolicy("RequireMerchantOrHigher",
+        policy => policy.Requirements.Add(new RoleHierarchyHandler.RoleRequirement("Merchant")));
+});
+
+builder.Services.AddSingleton<IAuthorizationHandler, RoleHierarchyHandler>();
 builder.Services.AddScoped<IWalletRepository, WalletRepository>();
 builder.Services.AddScoped<ITransactionRepository, TransactionRepository>();
 builder.Services.AddScoped<ITransactionService, TransactionService>();
+builder.Services.AddScoped<ITokenService, TokenService>();
+builder.Services.AddScoped<IUserService, UserService>();
+builder.Services.AddScoped<IAuthService, AuthService>();
+
 var app = builder.Build();
 
-// Configure the HTTP request pipeline.
+
 if (app.Environment.IsDevelopment())
 {
     app.UseSwagger();

@@ -5,29 +5,27 @@ using api.Enums;
 using api.Interfaces;
 using api.Mappers;
 using api.Models;
+using Microsoft.AspNetCore.Identity;
 
 namespace api.Service;
 
 public class TransactionService : ITransactionService
 {
-    private readonly IUserRepository _userRepo;
+    private readonly UserManager<User> _userManager;
     private readonly IWalletRepository _walletRepo;
     private readonly ITransactionRepository _transactionRepository;
 
-    public TransactionService(IWalletRepository walletRepo, IUserRepository userRepo, ITransactionRepository transactionRepository)
+    public TransactionService(IWalletRepository walletRepo, UserManager<User> userManager, ITransactionRepository transactionRepository)
     {
-        _userRepo = userRepo;
+        _userManager = userManager;
         _walletRepo = walletRepo;
         _transactionRepository = transactionRepository;
     }
 
     public async Task<QrCodeDataDto> GenerateQrCodeAsync(string userId, decimal amount)
     {
-        var user = await _userRepo.GetByIdAsync(userId);
+        var user = await _userManager.FindByIdAsync(userId);
         if (user == null) throw new Exception("User not found.");
-
-        //redundant??
-        // if (amount <= 0) throw new Exception("Amount must be greater than zero.");
 
         var transactionRef = GenerateTransactionRef();
         var transactionModel = new Transaction()
@@ -60,10 +58,15 @@ public class TransactionService : ITransactionService
         var verificationToken = GenerateToken();
 
         transactionModel.VerificationToken = verificationToken;
-        transactionModel.TokenGeneratedAt = DateTime.UtcNow;
+        transactionModel.TokenGeneratedAt = DateTime.Now;
 
-        await _transactionRepository.UpdateTokenAsync(transactionModel);
-        await _transactionRepository.UpdateTokenAsync(transactionModel);
+
+        await _transactionRepository.UpdateAsync(transactionModel, new[]
+        {
+            nameof(Transaction.VerificationToken),
+            nameof(Transaction.TokenGeneratedAt)
+        });
+
         return transactionModel.ToTransactionDto();
     }
 
@@ -124,10 +127,14 @@ public class TransactionService : ITransactionService
         transactionModel.TokenGeneratedAt = null; // Clear timestamp
         transactionModel.SenderId = senderId;
 
-        await _transactionRepository.UpdateSenderAsync(transactionModel);
-        await _transactionRepository.UpdateStatusAsync(transactionModel);
-        await _transactionRepository.UpdateTokenAsync(transactionModel);
-        await _transactionRepository.UpdateTokenTimeAsync(transactionModel);
+        await _transactionRepository.UpdateAsync(transactionModel, new[]
+        {
+            nameof(Transaction.SenderId),
+            nameof(Transaction.Status),
+            nameof(Transaction.VerificationToken),
+            nameof(Transaction.TokenGeneratedAt)
+        });
+
         return new TransactionResultDto
         {
             Message = "Transaction Successful",
@@ -135,10 +142,10 @@ public class TransactionService : ITransactionService
         };
     }
 
-
     private static string GenerateTransactionRef()
     {
-        return $"TXN-{DateTime.UtcNow:yyyyMMdd}-{Guid.NewGuid().ToString("N").Substring(6)}";
+        // return $"TXN-{DateTime.UtcNow:yyyyMMdd}-{Guid.NewGuid().ToString("N").Substring(6)}";
+        return $"TXN-{DateTime.Now:yyyyMMddHHmmss}-{Guid.NewGuid().ToString("N").Substring(8)}";
     }
 
     private static string GenerateToken(int size = 32)

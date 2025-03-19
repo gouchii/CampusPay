@@ -5,11 +5,14 @@ namespace api.Mappers;
 
 public static class UserMappers
 {
-    public static UserDto ToUserDto(this User userModel)
+    public static UserDto ToUserDto(this User userModel, string role)
     {
         return new UserDto
         {
-            Name = userModel.Name,
+            FullName = userModel.FullName,
+            UserName = userModel.UserName ?? string.Empty,
+            Email = userModel.Email ?? string.Empty,
+            Role = role,
             Wallets = userModel.Wallets.Select(w => w.ToWalletDto()).ToList(),
             CreatedAt = userModel.CreatedAt,
             SentTransactions = userModel.SentTransactions?
@@ -21,22 +24,5 @@ public static class UserMappers
         };
     }
 
-    //todo update this whole request dto
 
-
-    public static User ToUserFromCreateDto(this CreateUserRequestDto userDto)
-    {
-        return new User
-        {
-            Name = userDto.Name,
-        };
-    }
-
-    public static User ToUserFromUpdateDto(this UpdateUserRequestDto userDto)
-    {
-        return new User
-        {
-            Name = userDto.Name,
-        };
-    }
 }
