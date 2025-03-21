@@ -1,8 +1,9 @@
 using System.Text;
 using api.Data;
 using api.Interfaces;
+using api.Interfaces.Repository;
+using api.Interfaces.Service;
 using api.Models;
-using api.Override;
 using api.Repository;
 using api.Service;
 using api.Service.Authorization;
@@ -109,12 +110,14 @@ builder.Services.AddAuthorization(options =>
 });
 
 builder.Services.AddSingleton<IAuthorizationHandler, RoleHierarchyHandler>();
+builder.Services.AddSingleton<IExpirationService, ExpirationService>();
 builder.Services.AddScoped<IWalletRepository, WalletRepository>();
 builder.Services.AddScoped<ITransactionRepository, TransactionRepository>();
 builder.Services.AddScoped<ITransactionService, TransactionService>();
-builder.Services.AddScoped<ITokenService, TokenService>();
+builder.Services.AddScoped<IJwtService, JwtService>();
 builder.Services.AddScoped<IUserService, UserService>();
 builder.Services.AddScoped<IAuthService, AuthService>();
+builder.Services.AddScoped<IRefreshTokenRepository, RefreshTokenRepository>();
 
 var app = builder.Build();
 

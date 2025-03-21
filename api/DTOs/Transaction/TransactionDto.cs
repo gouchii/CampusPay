@@ -19,7 +19,7 @@ public class TransactionDto
 
     public decimal Amount { get; set; }
 
-    public DateTime Timestamp { get; set; }
+    public DateTime CreatedAt { get; set; }
 
     [JsonConverter(typeof(StringEnumConverter))]
     public TransactionStatus Status { get; set; }

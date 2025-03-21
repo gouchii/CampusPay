@@ -23,7 +23,7 @@ public class Transaction
     [Precision(18, 4)]
     public decimal Amount { get; init; }
 
-    [Required] public DateTime Timestamp { get; init; }
+    [Required] public DateTime CreatedAt { get; init; }
 
     [Required] public TransactionStatus Status { get; set; }
 

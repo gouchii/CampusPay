@@ -1,5 +1,7 @@
 using api.Extensions;
 using api.Interfaces;
+using api.Interfaces.Repository;
+using api.Interfaces.Service;
 using api.Mappers;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
@@ -34,7 +36,7 @@ public class WalletController : ControllerBase
         return Ok(wallets.Select(w => w.ToWalletDto()));
     }
 
-    [Authorize(Policy = "RequireMerchantOrHigher")]
+
     [HttpGet("GetWallet")]
     public async Task<IActionResult> GetByUserId()
     {

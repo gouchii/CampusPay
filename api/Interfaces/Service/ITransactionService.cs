@@ -2,7 +2,7 @@ using api.DTOs.Transaction;
 using api.DTOs.Wallet;
 using api.Models;
 
-namespace api.Interfaces;
+namespace api.Interfaces.Service;
 
 public interface ITransactionService
 {

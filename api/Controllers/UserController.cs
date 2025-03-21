@@ -1,6 +1,7 @@
 using api.DTOs.Account;
 using api.DTOs.User;
 using api.Interfaces;
+using api.Interfaces.Service;
 using api.Mappers;
 using api.Models;
 using Microsoft.AspNetCore.Identity;

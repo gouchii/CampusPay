@@ -3,6 +3,8 @@ using api.DTOs.Transaction;
 using api.DTOs.Wallet;
 using api.Enums;
 using api.Interfaces;
+using api.Interfaces.Repository;
+using api.Interfaces.Service;
 using api.Mappers;
 using api.Models;
 using Microsoft.AspNetCore.Identity;
@@ -14,12 +16,15 @@ public class TransactionService : ITransactionService
     private readonly UserManager<User> _userManager;
     private readonly IWalletRepository _walletRepo;
     private readonly ITransactionRepository _transactionRepository;
+    private readonly IExpirationService _expirationService;
 
-    public TransactionService(IWalletRepository walletRepo, UserManager<User> userManager, ITransactionRepository transactionRepository)
+    public TransactionService(IWalletRepository walletRepo, UserManager<User> userManager,
+        ITransactionRepository transactionRepository,  IExpirationService expirationService)
     {
         _userManager = userManager;
         _walletRepo = walletRepo;
         _transactionRepository = transactionRepository;
+        _expirationService = expirationService;
     }
 
     public async Task<QrCodeDataDto> GenerateQrCodeAsync(string userId, decimal amount)
@@ -83,7 +88,7 @@ public class TransactionService : ITransactionService
 
         //check if token is expired
 
-        if (transactionModel.TokenGeneratedAt != null && (DateTime.UtcNow - transactionModel.TokenGeneratedAt.Value).TotalMinutes > 5)
+        if (transactionModel.TokenGeneratedAt != null && _expirationService.IsExpired(transactionModel.TokenGeneratedAt.Value, ExpirationType.TransactionToken))
         {
             throw new Exception("Verification expired. Please re-verify.");
         }
@@ -104,7 +109,7 @@ public class TransactionService : ITransactionService
         if (senderWallet.Balance < transactionModel.Amount) throw new Exception("Insufficient Balance");
 
         //check if the sender is not trying to send money to themselves
-        if (senderId == transactionModel.ReceiverId) throw new Exception("Invalid Action");
+        if (senderId == transactionModel.ReceiverId) throw new Exception("You cant send money to yourself");
 
         //check if the transaction is already processed
         if (transactionModel.Status == TransactionStatus.Completed) throw new Exception("Transaction Already Completed");

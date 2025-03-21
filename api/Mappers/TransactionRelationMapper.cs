@@ -17,7 +17,7 @@ public static class TransactionRelationMapper
                 ReceiverId = transactionRelationModel.ParentTransaction.ReceiverId,
                 Type = transactionRelationModel.ParentTransaction.Type,
                 Amount = transactionRelationModel.ParentTransaction.Amount,
-                Timestamp = transactionRelationModel.ParentTransaction.Timestamp,
+                CreatedAt = transactionRelationModel.ParentTransaction.CreatedAt,
                 Status = transactionRelationModel.ParentTransaction.Status,
                 TransactionRef = transactionRelationModel.ParentTransaction.TransactionRef
             },
@@ -28,7 +28,7 @@ public static class TransactionRelationMapper
                 ReceiverId = transactionRelationModel.ChildTransaction.ReceiverId,
                 Type = transactionRelationModel.ChildTransaction.Type,
                 Amount = transactionRelationModel.ChildTransaction.Amount,
-                Timestamp = transactionRelationModel.ChildTransaction.Timestamp,
+                CreatedAt = transactionRelationModel.ChildTransaction.CreatedAt,
                 Status = transactionRelationModel.ChildTransaction.Status,
                 TransactionRef = transactionRelationModel.ChildTransaction.TransactionRef
             }

@@ -17,6 +17,7 @@ public class User : IdentityUser
     [MaxLength(50)]
     public string? PinHash { get; set; }
 
+    public List<RefreshToken> RefreshTokens { get; set; } = new();
     public List<Wallet> Wallets { get; set; } = new();
     public List<Transaction> SentTransactions { get; set; } = new();
     public List<Transaction> ReceivedTransactions { get; set; } = new();

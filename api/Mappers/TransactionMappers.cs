@@ -13,7 +13,7 @@ public static class TransactionMappers
             ReceiverId = transactionModel.ReceiverId,
             Type = transactionModel.Type, //add the .ToString() if not working properly
             Amount = transactionModel.Amount,
-            Timestamp = transactionModel.Timestamp,
+            CreatedAt = transactionModel.CreatedAt,
             Status = transactionModel.Status,
             TransactionRef = transactionModel.TransactionRef,
             VerificationToken = transactionModel.VerificationToken,

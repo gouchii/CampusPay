@@ -1,7 +1,7 @@
 using api.Enums;
 using api.Models;
 
-namespace api.Interfaces;
+namespace api.Interfaces.Repository;
 
 public interface IWalletRepository
 {

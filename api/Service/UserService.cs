@@ -1,5 +1,7 @@
 using api.DTOs.Account;
 using api.Interfaces;
+using api.Interfaces.Repository;
+using api.Interfaces.Service;
 using api.Models;
 using Microsoft.AspNetCore.Identity;
 
@@ -9,14 +11,14 @@ public class UserService : IUserService
 {
     private readonly UserManager<User> _userManager;
     private readonly IWalletRepository _walletRepo;
-    private readonly ITokenService _tokenService;
+    private readonly IJwtService _jwtService;
 
 
-    public UserService(UserManager<User> userManager, IWalletRepository walletRepo, ITokenService tokenService)
+    public UserService(UserManager<User> userManager, IWalletRepository walletRepo, IJwtService jwtService)
     {
         _userManager = userManager;
         _walletRepo = walletRepo;
-        _tokenService = tokenService;
+        _jwtService = jwtService;
     }
 
 

@@ -2,6 +2,7 @@ using api.DTOs.QR;
 using api.DTOs.Transaction;
 using api.Extensions;
 using api.Interfaces;
+using api.Interfaces.Service;
 using api.Models;
 using Microsoft.AspNetCore.Mvc;
 

@@ -1,15 +1,16 @@
 using api.DTOs.Account;
 using api.Interfaces;
+using api.Interfaces.Service;
 using Microsoft.AspNetCore.Mvc;
 
 namespace api.Controllers;
 
 [Route("api/account")]
 [ApiController]
-public class AccountController: ControllerBase
+public class AuthController: ControllerBase
 {
     private readonly IAuthService _authService;
-    public AccountController(IAuthService authService)
+    public AuthController(IAuthService authService)
     {
         _authService = authService;
     }
