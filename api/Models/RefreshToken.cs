@@ -9,7 +9,5 @@ public class RefreshToken
 
     [MaxLength(450)] public string UserId { get; init; } = string.Empty;
     public User? User { get; set; }
-    public DateTime CreatedAt { get; init; }
-    public DateTime? RevokedAt { get; set; }
-
+    [Required]public DateTime CreatedAt { get; init; }
 }

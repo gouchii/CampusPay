@@ -12,8 +12,8 @@ using api.Data;
 namespace api.Migrations
 {
     [DbContext(typeof(AppDbContext))]
-    [Migration("20250319064659_updatedTimezones")]
-    partial class updatedTimezones
+    [Migration("20250321065745_added refresh tokens")]
+    partial class addedrefreshtokens
     {
         /// <inheritdoc />
         protected override void BuildTargetModel(ModelBuilder modelBuilder)
@@ -54,19 +54,19 @@ namespace api.Migrations
                     b.HasData(
                         new
                         {
-                            Id = "976d9ca3-4bd0-4653-bc2b-004b1bca20d0",
+                            Id = "f08bba20-7781-4bcd-8896-bec9aa8b5091",
                             Name = "Admin",
                             NormalizedName = "ADMIN"
                         },
                         new
                         {
-                            Id = "fedfa567-f450-4537-8365-e17bf096f60c",
+                            Id = "1e6d936a-4f9d-4125-b687-02d46bb44bf1",
                             Name = "Merchant",
                             NormalizedName = "MERCHANT"
                         },
                         new
                         {
-                            Id = "3b3dc385-ffbf-48b7-be9b-fe9205a028ef",
+                            Id = "fce5a29d-0203-4da0-9337-6913bb8b7fa7",
                             Name = "User",
                             NormalizedName = "USER"
                         });
@@ -178,6 +178,35 @@ namespace api.Migrations
                     b.ToTable("AspNetUserTokens", (string)null);
                 });
 
+            modelBuilder.Entity("api.Models.RefreshToken", b =>
+                {
+                    b.Property<int>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("int");
+
+                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("Id"));
+
+                    b.Property<DateTime>("CreatedAt")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("datetime2")
+                        .HasDefaultValueSql("GETDATE()");
+
+                    b.Property<string>("Token")
+                        .IsRequired()
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<string>("UserId")
+                        .IsRequired()
+                        .HasMaxLength(450)
+                        .HasColumnType("nvarchar(450)");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("UserId");
+
+                    b.ToTable("RefreshTokens");
+                });
+
             modelBuilder.Entity("api.Models.Transaction", b =>
                 {
                     b.Property<int>("Id")
@@ -190,6 +219,11 @@ namespace api.Migrations
                         .HasPrecision(18, 4)
                         .HasColumnType("decimal(18,4)");
 
+                    b.Property<DateTime>("CreatedAt")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("datetime2")
+                        .HasDefaultValueSql("GETDATE()");
+
                     b.Property<string>("ReceiverId")
                         .IsRequired()
                         .HasMaxLength(450)
@@ -201,11 +235,6 @@ namespace api.Migrations
 
                     b.Property<int>("Status")
                         .HasColumnType("int");
-
-                    b.Property<DateTime>("Timestamp")
-                        .ValueGeneratedOnAdd()
-                        .HasColumnType("datetime2")
-                        .HasDefaultValueSql("GETDATE()");
 
                     b.Property<DateTime?>("TokenGeneratedAt")
                         .HasColumnType("datetime2");
@@ -422,6 +451,17 @@ namespace api.Migrations
                         .IsRequired();
                 });
 
+            modelBuilder.Entity("api.Models.RefreshToken", b =>
+                {
+                    b.HasOne("api.Models.User", "User")
+                        .WithMany("RefreshTokens")
+                        .HasForeignKey("UserId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.Navigation("User");
+                });
+
             modelBuilder.Entity("api.Models.Transaction", b =>
                 {
                     b.HasOne("api.Models.User", "Receiver")
@@ -480,6 +520,8 @@ namespace api.Migrations
             modelBuilder.Entity("api.Models.User", b =>
                 {
                     b.Navigation("ReceivedTransactions");
+
+                    b.Navigation("RefreshTokens");
 
                     b.Navigation("SentTransactions");
 

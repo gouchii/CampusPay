@@ -87,9 +87,8 @@ public class AppDbContext : IdentityDbContext<User>
             .HasDefaultValueSql("GETDATE()");
 
         modelBuilder.Entity<RefreshToken>()
-
             .Property(rt => rt.CreatedAt)
-            .HasDefaultValue("GETDATE()");
+            .HasDefaultValueSql("GETDATE()");
 
 
         // **Seeding Default Roles**

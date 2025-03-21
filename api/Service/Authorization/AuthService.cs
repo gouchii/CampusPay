@@ -1,3 +1,5 @@
+using System.Security.Cryptography;
+using System.Text;
 using api.DTOs.Account;
 using api.Enums;
 using api.Interfaces.Repository;
@@ -15,9 +17,11 @@ public class AuthService : IAuthService
     private readonly SignInManager<User> _signInManager;
     private readonly IRefreshTokenRepository _refreshTokenRepo;
     private readonly IExpirationService _expirationService;
+    private readonly IConfiguration _config;
 
-    public AuthService(UserManager<User> userManager, IWalletRepository walletRepo,
-        IJwtService jwtService, SignInManager<User> signInManager, IRefreshTokenRepository refreshTokenRepo, IExpirationService expirationService)
+    public AuthService (UserManager<User> userManager, IWalletRepository walletRepo,
+        IJwtService jwtService, SignInManager<User> signInManager, IRefreshTokenRepository refreshTokenRepo,
+        IExpirationService expirationService, IConfiguration config)
     {
         _userManager = userManager;
         _walletRepo = walletRepo;
@@ -25,6 +29,7 @@ public class AuthService : IAuthService
         _signInManager = signInManager;
         _refreshTokenRepo = refreshTokenRepo;
         _expirationService = expirationService;
+        _config = config;
     }
 
     public async Task<NewUserDto> Register(string userName, string fullName, string email, string password)
@@ -73,7 +78,8 @@ public class AuthService : IAuthService
         {
             UserName = user.UserName,
             Email = user.Email,
-            AccessToken = await _jwtService.CreateTokenAsync(user)
+            AccessToken = await _jwtService.CreateTokenAsync(user),
+            RefreshToken = await CreateRefreshTokenAsync(user.Id)
         };
     }
 
@@ -118,42 +124,81 @@ public class AuthService : IAuthService
         };
     }
 
+    public async Task Logout (string userId)
+    {
+        var user = await _userManager.FindByIdAsync(userId);
+        if (user == null)
+        {
+            throw new Exception("User does not exist.");
+        }
+
+        var refreshTokens = await _refreshTokenRepo.GetByUserIdAsync(userId);
+        if (refreshTokens.Any())
+        {
+            await _refreshTokenRepo.RemoveRangeAsync(refreshTokens);
+        }
+        await _signInManager.SignOutAsync();
+    }
+
     private async Task<string> CreateRefreshTokenAsync(string userId)
     {
-        var newToken = new RefreshToken
+        var oldTokens = await _refreshTokenRepo.GetByUserIdAsync(userId);
+
+        if (oldTokens.Any())
         {
-            Token = _jwtService.GenerateRefreshToken(),
+            await _refreshTokenRepo.RemoveRangeAsync(oldTokens);
+        }
+        var token = _jwtService.GenerateRefreshToken();
+        var hashedToken = HashToken(token);
+
+        var newTokenModel = new RefreshToken
+        {
+            Token = hashedToken,
             UserId = userId
         };
 
-        await _refreshTokenRepo.AddAsync(newToken);
+        await _refreshTokenRepo.AddAsync(newTokenModel);
 
-        return newToken.Token;
+        return token;
     }
 
-    //todo delete revoked RefreshTokens
+    //todo delete revoked RefreshTokens later
 
     private async Task<string> RefreshTokenAsync(string oldRefreshToken, string userId)
     {
-        var oldRefreshTokenModel = await _refreshTokenRepo.GetByTokenAsync(oldRefreshToken);
+        var hashedOldRefreshToken = HashToken(oldRefreshToken);
+        var oldRefreshTokenModel = await _refreshTokenRepo.GetByTokenAsync(hashedOldRefreshToken);
 
         if (oldRefreshTokenModel == null ||
-            _expirationService.IsExpired(oldRefreshTokenModel.CreatedAt, ExpirationType.RefreshToken) ||
-            oldRefreshTokenModel.RevokedAt != null || oldRefreshTokenModel.UserId != userId)
+            _expirationService.IsExpired(oldRefreshTokenModel.CreatedAt, ExpirationType.RefreshToken) || oldRefreshTokenModel.UserId != userId)
         {
             throw new UnauthorizedAccessException("Invalid or expired refresh token.");
         }
-        oldRefreshTokenModel.RevokedAt = DateTime.Now;
-        await _refreshTokenRepo.UpdateAsync(oldRefreshTokenModel);
+        await _refreshTokenRepo.DeleteAsync(oldRefreshTokenModel);
 
-        var newToken = new RefreshToken
+        var newRefreshToken = _jwtService.GenerateRefreshToken();
+        var newHashedRefreshToken = HashToken(newRefreshToken);
+
+        var newTokenModel = new RefreshToken
         {
-            Token = _jwtService.GenerateRefreshToken(),
+            Token = newHashedRefreshToken,
             UserId = oldRefreshTokenModel.UserId
         };
 
-        await _refreshTokenRepo.AddAsync(newToken);
+        await _refreshTokenRepo.AddAsync(newTokenModel);
 
-        return newToken.Token;
+        return newRefreshToken;
+    }
+
+    private string HashToken(string token)
+    {
+        var signingKey = _config["JWT:SigningKey"];
+        if (string.IsNullOrWhiteSpace(signingKey))
+        {
+            throw new InvalidOperationException("JWT signing key is missing from configuration.");
+        }
+        var hmacKey = Encoding.UTF8.GetBytes(signingKey);
+        using var hmac = new HMACSHA256(hmacKey);
+        return Convert.ToBase64String(hmac.ComputeHash(Encoding.UTF8.GetBytes(token)));
     }
 }

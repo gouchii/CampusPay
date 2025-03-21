@@ -42,7 +42,13 @@ public class RefreshTokenRepository : IRefreshTokenRepository
 
     public async Task DeleteAsync(RefreshToken token)
     {
-        _context.Set<RefreshToken>().Remove(token);
+        _context.RefreshTokens.Remove(token);
+        await _context.SaveChangesAsync();
+    }
+
+    public async Task RemoveRangeAsync(List<RefreshToken> tokens)
+    {
+        _context.RefreshTokens.RemoveRange(tokens);
         await _context.SaveChangesAsync();
     }
 
