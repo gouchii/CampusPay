@@ -1,12 +1,15 @@
 using System.Text;
 using api.Data;
-using api.Interfaces;
-using api.Interfaces.Repository;
-using api.Interfaces.Service;
-using api.Models;
-using api.Repository;
-using api.Service;
-using api.Service.Authorization;
+using api.Features.Auth.Interface;
+using api.Features.Auth.Repository;
+using api.Features.Auth.Services;
+using api.Features.Transaction.Interfaces;
+using api.Features.Transaction.Repository;
+using api.Features.Transaction.Service;
+using api.Features.User;
+using api.Features.Wallet;
+using api.Shared.Interface;
+using api.Shared.Service;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Identity;
@@ -23,7 +26,7 @@ builder.Services.AddDbContext<AppDbContext>(options =>
     options.UseSqlServer(builder.Configuration.GetConnectionString("DefaultConnection"));
 });
 
-builder.Services.AddIdentity<User, IdentityRole>(options =>
+builder.Services.AddIdentity<UserModel, IdentityRole>(options =>
     {
         options.Password.RequireDigit = false;
         options.Password.RequireLowercase = false;
@@ -128,9 +131,12 @@ if (app.Environment.IsDevelopment())
     app.UseSwaggerUI();
 }
 
-app.UseHttpsRedirection();
+//todo uncomment this if finished testing
+// app.UseHttpsRedirection();
 app.UseCors("AllowAll");
 app.UseAuthentication();
 app.UseAuthorization();
 app.MapControllers();
+
+
 app.Run();

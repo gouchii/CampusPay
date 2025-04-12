@@ -51,19 +51,19 @@ namespace api.Migrations
                     b.HasData(
                         new
                         {
-                            Id = "f08bba20-7781-4bcd-8896-bec9aa8b5091",
+                            Id = "872df129-d047-435e-8db3-1e75c138ce91",
                             Name = "Admin",
                             NormalizedName = "ADMIN"
                         },
                         new
                         {
-                            Id = "1e6d936a-4f9d-4125-b687-02d46bb44bf1",
+                            Id = "2cd09e6b-2c7d-48bb-ab2e-dcd4bdf9d1ea",
                             Name = "Merchant",
                             NormalizedName = "MERCHANT"
                         },
                         new
                         {
-                            Id = "fce5a29d-0203-4da0-9337-6913bb8b7fa7",
+                            Id = "d8564fcf-ab5a-4c54-a8f0-ca187f569c99",
                             Name = "User",
                             NormalizedName = "USER"
                         });
@@ -175,7 +175,7 @@ namespace api.Migrations
                     b.ToTable("AspNetUserTokens", (string)null);
                 });
 
-            modelBuilder.Entity("api.Models.RefreshToken", b =>
+            modelBuilder.Entity("api.Features.Auth.Models.RefreshTokenModel", b =>
                 {
                     b.Property<int>("Id")
                         .ValueGeneratedOnAdd()
@@ -190,7 +190,8 @@ namespace api.Migrations
 
                     b.Property<string>("Token")
                         .IsRequired()
-                        .HasColumnType("nvarchar(max)");
+                        .HasMaxLength(44)
+                        .HasColumnType("nvarchar(44)");
 
                     b.Property<string>("UserId")
                         .IsRequired()
@@ -204,7 +205,7 @@ namespace api.Migrations
                     b.ToTable("RefreshTokens");
                 });
 
-            modelBuilder.Entity("api.Models.Transaction", b =>
+            modelBuilder.Entity("api.Features.Transaction.Models.TransactionModel", b =>
                 {
                     b.Property<int>("Id")
                         .ValueGeneratedOnAdd()
@@ -260,7 +261,7 @@ namespace api.Migrations
                     b.ToTable("Transactions");
                 });
 
-            modelBuilder.Entity("api.Models.TransactionRelation", b =>
+            modelBuilder.Entity("api.Features.Transaction.Models.TransactionRelationModel", b =>
                 {
                     b.Property<int>("ParentTransactionId")
                         .HasColumnType("int");
@@ -278,7 +279,7 @@ namespace api.Migrations
                     b.ToTable("TransactionRelations");
                 });
 
-            modelBuilder.Entity("api.Models.User", b =>
+            modelBuilder.Entity("api.Features.User.UserModel", b =>
                 {
                     b.Property<string>("Id")
                         .HasColumnType("nvarchar(450)");
@@ -338,6 +339,10 @@ namespace api.Migrations
                         .HasMaxLength(50)
                         .HasColumnType("nvarchar(50)");
 
+                    b.Property<int>("SchoolIdNumber")
+                        .HasMaxLength(5)
+                        .HasColumnType("int");
+
                     b.Property<string>("SecurityStamp")
                         .HasColumnType("nvarchar(max)");
 
@@ -365,7 +370,7 @@ namespace api.Migrations
                     b.ToTable("AspNetUsers", (string)null);
                 });
 
-            modelBuilder.Entity("api.Models.Wallet", b =>
+            modelBuilder.Entity("api.Features.Wallet.WalletModel", b =>
                 {
                     b.Property<int>("Id")
                         .ValueGeneratedOnAdd()
@@ -408,7 +413,7 @@ namespace api.Migrations
 
             modelBuilder.Entity("Microsoft.AspNetCore.Identity.IdentityUserClaim<string>", b =>
                 {
-                    b.HasOne("api.Models.User", null)
+                    b.HasOne("api.Features.User.UserModel", null)
                         .WithMany()
                         .HasForeignKey("UserId")
                         .OnDelete(DeleteBehavior.Cascade)
@@ -417,7 +422,7 @@ namespace api.Migrations
 
             modelBuilder.Entity("Microsoft.AspNetCore.Identity.IdentityUserLogin<string>", b =>
                 {
-                    b.HasOne("api.Models.User", null)
+                    b.HasOne("api.Features.User.UserModel", null)
                         .WithMany()
                         .HasForeignKey("UserId")
                         .OnDelete(DeleteBehavior.Cascade)
@@ -432,7 +437,7 @@ namespace api.Migrations
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
 
-                    b.HasOne("api.Models.User", null)
+                    b.HasOne("api.Features.User.UserModel", null)
                         .WithMany()
                         .HasForeignKey("UserId")
                         .OnDelete(DeleteBehavior.Cascade)
@@ -441,16 +446,16 @@ namespace api.Migrations
 
             modelBuilder.Entity("Microsoft.AspNetCore.Identity.IdentityUserToken<string>", b =>
                 {
-                    b.HasOne("api.Models.User", null)
+                    b.HasOne("api.Features.User.UserModel", null)
                         .WithMany()
                         .HasForeignKey("UserId")
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
                 });
 
-            modelBuilder.Entity("api.Models.RefreshToken", b =>
+            modelBuilder.Entity("api.Features.Auth.Models.RefreshTokenModel", b =>
                 {
-                    b.HasOne("api.Models.User", "User")
+                    b.HasOne("api.Features.User.UserModel", "User")
                         .WithMany("RefreshTokens")
                         .HasForeignKey("UserId")
                         .OnDelete(DeleteBehavior.Cascade)
@@ -459,15 +464,15 @@ namespace api.Migrations
                     b.Navigation("User");
                 });
 
-            modelBuilder.Entity("api.Models.Transaction", b =>
+            modelBuilder.Entity("api.Features.Transaction.Models.TransactionModel", b =>
                 {
-                    b.HasOne("api.Models.User", "Receiver")
+                    b.HasOne("api.Features.User.UserModel", "Receiver")
                         .WithMany("ReceivedTransactions")
                         .HasForeignKey("ReceiverId")
                         .OnDelete(DeleteBehavior.NoAction)
                         .IsRequired();
 
-                    b.HasOne("api.Models.User", "Sender")
+                    b.HasOne("api.Features.User.UserModel", "Sender")
                         .WithMany("SentTransactions")
                         .HasForeignKey("SenderId")
                         .OnDelete(DeleteBehavior.NoAction);
@@ -477,15 +482,15 @@ namespace api.Migrations
                     b.Navigation("Sender");
                 });
 
-            modelBuilder.Entity("api.Models.TransactionRelation", b =>
+            modelBuilder.Entity("api.Features.Transaction.Models.TransactionRelationModel", b =>
                 {
-                    b.HasOne("api.Models.Transaction", "ChildTransaction")
+                    b.HasOne("api.Features.Transaction.Models.TransactionModel", "ChildTransaction")
                         .WithMany("ParentRelations")
                         .HasForeignKey("ChildTransactionId")
                         .OnDelete(DeleteBehavior.NoAction)
                         .IsRequired();
 
-                    b.HasOne("api.Models.Transaction", "ParentTransaction")
+                    b.HasOne("api.Features.Transaction.Models.TransactionModel", "ParentTransaction")
                         .WithMany("ChildRelations")
                         .HasForeignKey("ParentTransactionId")
                         .OnDelete(DeleteBehavior.NoAction)
@@ -496,9 +501,9 @@ namespace api.Migrations
                     b.Navigation("ParentTransaction");
                 });
 
-            modelBuilder.Entity("api.Models.Wallet", b =>
+            modelBuilder.Entity("api.Features.Wallet.WalletModel", b =>
                 {
-                    b.HasOne("api.Models.User", "User")
+                    b.HasOne("api.Features.User.UserModel", "User")
                         .WithMany("Wallets")
                         .HasForeignKey("UserId")
                         .OnDelete(DeleteBehavior.Cascade)
@@ -507,14 +512,14 @@ namespace api.Migrations
                     b.Navigation("User");
                 });
 
-            modelBuilder.Entity("api.Models.Transaction", b =>
+            modelBuilder.Entity("api.Features.Transaction.Models.TransactionModel", b =>
                 {
                     b.Navigation("ChildRelations");
 
                     b.Navigation("ParentRelations");
                 });
 
-            modelBuilder.Entity("api.Models.User", b =>
+            modelBuilder.Entity("api.Features.User.UserModel", b =>
                 {
                     b.Navigation("ReceivedTransactions");
 
