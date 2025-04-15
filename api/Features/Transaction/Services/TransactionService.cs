@@ -6,11 +6,12 @@ using api.Features.Transaction.Models;
 using api.Features.Wallet;
 using api.Shared.DTOs.QR;
 using api.Shared.DTOs.TransactionDto;
-using api.Shared.Enum;
-using api.Shared.Interface;
+using api.Shared.Expiration.Enums;
+using api.Shared.Expiration.Interfaces;
+using api.Shared.Wallet.Interfaces;
 using Microsoft.AspNetCore.Identity;
 
-namespace api.Features.Transaction.Service;
+namespace api.Features.Transaction.Services;
 
 public class TransactionService : ITransactionService
 {
@@ -37,7 +38,10 @@ public class TransactionService : ITransactionService
         var transactionModel = new TransactionModel()
         {
             ReceiverId = userId,
-            Type = TransactionType.PaymentQr,
+
+            //todo maybe move the assignment of payment method after the payment process is a success
+
+            Type = TransactionType.Payment,
             Amount = amount,
             Status = TransactionStatus.Pending,
             TransactionRef = transactionRef
@@ -57,6 +61,10 @@ public class TransactionService : ITransactionService
         if (transactionModel == null)
         {
             throw new Exception("Transaction not found");
+        }
+        if (transactionModel.TokenGeneratedAt != null && _expirationService.IsExpired(transactionModel.CreatedAt, ExpirationType.Transaction))
+        {
+            throw new Exception("Transaction Expired");
         }
 
         if (transactionModel.Status != TransactionStatus.Pending) throw new Exception("Transaction Status is not Pending");
@@ -132,13 +140,14 @@ public class TransactionService : ITransactionService
         transactionModel.VerificationToken = null; // Invalidate token after successful payment
         transactionModel.TokenGeneratedAt = null; // Clear timestamp
         transactionModel.SenderId = senderId;
-
+        transactionModel.Method = PaymentMethod.Qr;
         await _transactionRepository.UpdateAsync(transactionModel, new[]
         {
             nameof(TransactionModel.SenderId),
             nameof(TransactionModel.Status),
             nameof(TransactionModel.VerificationToken),
-            nameof(TransactionModel.TokenGeneratedAt)
+            nameof(TransactionModel.TokenGeneratedAt),
+            nameof(TransactionModel.Method)
         });
         return new TransactionResultDto
         {

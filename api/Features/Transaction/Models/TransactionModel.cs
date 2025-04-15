@@ -19,6 +19,8 @@ public class TransactionModel
 
     [Required] public TransactionType Type { get; init; }
 
+    public PaymentMethod Method { get; set; }
+
     [Required]
     [Range(0.01, double.MaxValue)]
     [Precision(18, 4)]
