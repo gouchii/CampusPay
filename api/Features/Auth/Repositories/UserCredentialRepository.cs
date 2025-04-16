@@ -15,14 +15,14 @@ public class UserCredentialRepository : IUserCredentialRepository
         _context = context;
     }
 
-    public async Task<UserCredentialModel?> GetByTypeAsync(string userId, CredentialType type)
+    public async Task<UserCredentialModel?> GetByUserIdAsync(string userId, CredentialType type)
     {
         return await _context.UserCredentials.FirstOrDefaultAsync(uc => uc.UserId == userId && uc.Type == type);
     }
 
     public async Task AddAsync(UserCredentialModel credentialModel)
     {
-        var duplicate = await GetByTypeAsync(credentialModel.UserId, credentialModel.Type);
+        var duplicate = await GetByUserIdAsync(credentialModel.UserId, credentialModel.Type);
 
         if (duplicate != null)
         {
@@ -67,5 +67,10 @@ public class UserCredentialRepository : IUserCredentialRepository
 
         await _context.SaveChangesAsync();
         return existingUserCredentialModel;
+    }
+
+    public async Task<UserCredentialModel?> GetByValueAsync(string hashedValue, CredentialType type)
+    {
+        return await _context.UserCredentials.FirstOrDefaultAsync(uc => uc.HashedValue == hashedValue && uc.Type == type);
     }
 }

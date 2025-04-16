@@ -3,6 +3,7 @@ using System;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Metadata;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 using api.Data;
 
@@ -11,9 +12,11 @@ using api.Data;
 namespace api.Migrations
 {
     [DbContext(typeof(AppDbContext))]
-    partial class AppDbContextModelSnapshot : ModelSnapshot
+    [Migration("20250412121811_Added SchoolIDNumber on user entity")]
+    partial class AddedSchoolIDNumberonuserentity
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        /// <inheritdoc />
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -51,19 +54,19 @@ namespace api.Migrations
                     b.HasData(
                         new
                         {
-                            Id = "10653974-6122-458e-aa10-8463b4978188",
+                            Id = "872df129-d047-435e-8db3-1e75c138ce91",
                             Name = "Admin",
                             NormalizedName = "ADMIN"
                         },
                         new
                         {
-                            Id = "39e140e6-b555-4ac4-aefc-fde39858ac46",
+                            Id = "2cd09e6b-2c7d-48bb-ab2e-dcd4bdf9d1ea",
                             Name = "Merchant",
                             NormalizedName = "MERCHANT"
                         },
                         new
                         {
-                            Id = "dea337bb-17f6-4026-acac-0054262456b5",
+                            Id = "d8564fcf-ab5a-4c54-a8f0-ca187f569c99",
                             Name = "User",
                             NormalizedName = "USER"
                         });
@@ -205,46 +208,6 @@ namespace api.Migrations
                     b.ToTable("RefreshTokens");
                 });
 
-            modelBuilder.Entity("api.Features.Auth.Models.UserCredentialModel", b =>
-                {
-                    b.Property<int>("Id")
-                        .ValueGeneratedOnAdd()
-                        .HasColumnType("int");
-
-                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("Id"));
-
-                    b.Property<DateTime>("CreatedAt")
-                        .ValueGeneratedOnAdd()
-                        .HasColumnType("datetime2")
-                        .HasDefaultValueSql("GETDATE()");
-
-                    b.Property<string>("HashedValue")
-                        .IsRequired()
-                        .HasColumnType("nvarchar(max)");
-
-                    b.Property<DateTime?>("LastUsedAt")
-                        .HasColumnType("datetime2");
-
-                    b.Property<string>("Type")
-                        .IsRequired()
-                        .HasColumnType("nvarchar(450)");
-
-                    b.Property<string>("UserId")
-                        .IsRequired()
-                        .HasColumnType("nvarchar(450)");
-
-                    b.HasKey("Id");
-
-                    b.HasIndex("UserId")
-                        .IsUnique()
-                        .HasFilter("[Type] = 'RfidTag'");
-
-                    b.HasIndex("UserId", "Type")
-                        .IsUnique();
-
-                    b.ToTable("UserCredentials");
-                });
-
             modelBuilder.Entity("api.Features.Transaction.Models.TransactionModel", b =>
                 {
                     b.Property<int>("Id")
@@ -261,9 +224,6 @@ namespace api.Migrations
                         .ValueGeneratedOnAdd()
                         .HasColumnType("datetime2")
                         .HasDefaultValueSql("GETDATE()");
-
-                    b.Property<int>("Method")
-                        .HasColumnType("int");
 
                     b.Property<string>("ReceiverId")
                         .IsRequired()
@@ -374,6 +334,14 @@ namespace api.Migrations
                     b.Property<bool>("PhoneNumberConfirmed")
                         .HasColumnType("bit");
 
+                    b.Property<string>("PinHash")
+                        .HasMaxLength(50)
+                        .HasColumnType("nvarchar(50)");
+
+                    b.Property<string>("RfidTag")
+                        .HasMaxLength(50)
+                        .HasColumnType("nvarchar(50)");
+
                     b.Property<int>("SchoolIdNumber")
                         .HasMaxLength(5)
                         .HasColumnType("int");
@@ -397,6 +365,10 @@ namespace api.Migrations
                         .IsUnique()
                         .HasDatabaseName("UserNameIndex")
                         .HasFilter("[NormalizedUserName] IS NOT NULL");
+
+                    b.HasIndex("RfidTag")
+                        .IsUnique()
+                        .HasFilter("[RfidTag] IS NOT NULL");
 
                     b.ToTable("AspNetUsers", (string)null);
                 });
@@ -495,17 +467,6 @@ namespace api.Migrations
                     b.Navigation("User");
                 });
 
-            modelBuilder.Entity("api.Features.Auth.Models.UserCredentialModel", b =>
-                {
-                    b.HasOne("api.Features.User.UserModel", "User")
-                        .WithMany("UserCredentials")
-                        .HasForeignKey("UserId")
-                        .OnDelete(DeleteBehavior.Cascade)
-                        .IsRequired();
-
-                    b.Navigation("User");
-                });
-
             modelBuilder.Entity("api.Features.Transaction.Models.TransactionModel", b =>
                 {
                     b.HasOne("api.Features.User.UserModel", "Receiver")
@@ -568,8 +529,6 @@ namespace api.Migrations
                     b.Navigation("RefreshTokens");
 
                     b.Navigation("SentTransactions");
-
-                    b.Navigation("UserCredentials");
 
                     b.Navigation("Wallets");
                 });

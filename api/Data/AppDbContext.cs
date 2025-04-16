@@ -119,8 +119,11 @@ public class AppDbContext : IdentityDbContext<UserModel>
             entity.HasIndex(uc => new { uc.UserId, uc.Type })
                 .IsUnique(); // One credential type per user
 
-            entity.HasIndex(uc => uc.Type == CredentialType.RfidTag)
-                .IsUnique(); // Unique rfid tag per user
+            // entity.HasIndex(uc => uc.Type)
+            //     .IsUnique(); // Indexes the enum field itself
+            entity.HasIndex(uc => uc.UserId) // assuming RfidTag is not a property here
+                .IsUnique()
+                .HasFilter("[Type] = 'RfidTag'"); // Unique rfid tag per user
         });
 
         // **Seeding Default Roles**

@@ -31,7 +31,7 @@ public class UserCredentialService : IUserCredentialService
             throw new Exception($"User not found");
         }
 
-        var credentialModel = await _credentialRepository.GetByTypeAsync(userId, type);
+        var credentialModel = await _credentialRepository.GetByUserIdAsync(userId, type);
         if (credentialModel == null)
         {
             throw new Exception($"User does not have a {type} registered yet");
@@ -55,6 +55,16 @@ public class UserCredentialService : IUserCredentialService
         if (userModel == null)
         {
             throw new Exception($"User not found");
+        }
+
+        if (type == CredentialType.RfidTag)
+        {
+            // Check if any other user already has the same RFID tag
+            var existingCredential = await _credentialRepository.GetByValueAsync(value, type);
+            if (existingCredential != null)
+            {
+                throw new InvalidOperationException("Duplicate RfidTag registration is not allowed");
+            }
         }
 
         var hashedValue = _passwordHasher.HashPassword(userModel, value);
