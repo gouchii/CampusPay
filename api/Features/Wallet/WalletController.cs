@@ -1,9 +1,11 @@
 using api.Features.Transaction.Interfaces;
 using api.Shared.Extensions;
+using api.Shared.Wallet.Interfaces;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 
 namespace api.Features.Wallet;
+
 [Authorize]
 [Route("api/wallet")]
 [ApiController]
@@ -11,7 +13,7 @@ public class WalletController : ControllerBase
 {
     private readonly IWalletRepository _walletRepo;
 
-    public WalletController(IWalletRepository walletRepo, ITransactionService transactionService)
+    public WalletController(IWalletRepository walletRepo)
     {
         _walletRepo = walletRepo;
     }
@@ -42,12 +44,14 @@ public class WalletController : ControllerBase
         {
             return BadRequest();
         }
+
         var wallet = await _walletRepo.GetByUserIdAsync(userId);
 
         if (wallet == null)
         {
             return BadRequest();
         }
+
         return Ok(wallet.ToWalletDto());
     }
 }

@@ -1,4 +1,5 @@
 using api.Features.Auth.Interface;
+using api.Shared.Auth.Interfaces;
 using api.Shared.DTOs.Authentication;
 using api.Shared.Extensions;
 using Microsoft.AspNetCore.Authorization;

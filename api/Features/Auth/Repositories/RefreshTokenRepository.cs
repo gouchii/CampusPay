@@ -3,7 +3,7 @@ using api.Features.Auth.Interface;
 using api.Features.Auth.Models;
 using Microsoft.EntityFrameworkCore;
 
-namespace api.Features.Auth.Repository;
+namespace api.Features.Auth.Repositories;
 
 public class RefreshTokenRepository : IRefreshTokenRepository
 {
@@ -51,6 +51,4 @@ public class RefreshTokenRepository : IRefreshTokenRepository
         _context.RefreshTokens.RemoveRange(tokens);
         await _context.SaveChangesAsync();
     }
-
-
 }

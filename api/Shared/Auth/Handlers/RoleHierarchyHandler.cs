@@ -1,7 +1,7 @@
 using System.Security.Claims;
 using Microsoft.AspNetCore.Authorization;
 
-namespace api.Features.Auth.Services;
+namespace api.Shared.Auth.Handlers;
 
 public class RoleHierarchyHandler : AuthorizationHandler<RoleHierarchyHandler.RoleRequirement>
 {

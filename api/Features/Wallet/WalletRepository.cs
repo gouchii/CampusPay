@@ -1,4 +1,6 @@
 using api.Data;
+using api.Shared.Wallet.Enums;
+using api.Shared.Wallet.Interfaces;
 using Microsoft.EntityFrameworkCore;
 
 namespace api.Features.Wallet;
@@ -34,6 +36,7 @@ public class WalletRepository : IWalletRepository
         {
             return false;
         }
+
         existingWallet.Balance = walletModelModel.Balance;
         return await _context.SaveChangesAsync() > 0;
     }

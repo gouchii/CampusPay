@@ -3,7 +3,9 @@ using System.Security.Claims;
 using System.Security.Cryptography;
 using System.Text;
 using api.Features.Auth.Interface;
+using api.Features.Auth.Interfaces;
 using api.Features.User;
+using api.Shared.Expiration.Interfaces;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.IdentityModel.Tokens;
 
@@ -14,7 +16,8 @@ public class JwtService : IJwtService
     private readonly UserManager<UserModel> _userManager;
     private readonly IConfiguration _configuration;
 
-    public JwtService(UserManager<UserModel> userManager, IConfiguration configuration )
+
+    public JwtService(UserManager<UserModel> userManager, IConfiguration configuration)
     {
         _userManager = userManager;
         _configuration = configuration;
@@ -26,9 +29,9 @@ public class JwtService : IJwtService
 
         var claims = new List<Claim>
         {
-            new Claim(JwtRegisteredClaimNames.Sub, userModel.Id),
-            new Claim(JwtRegisteredClaimNames.Jti, Guid.NewGuid().ToString()),
-            new Claim(ClaimTypes.Name, userModel.UserName ?? string.Empty)
+            new(JwtRegisteredClaimNames.Sub, userModel.Id),
+            new(JwtRegisteredClaimNames.Jti, Guid.NewGuid().ToString()),
+            new(ClaimTypes.Name, userModel.UserName ?? string.Empty)
         };
 
         foreach (var role in userRoles)

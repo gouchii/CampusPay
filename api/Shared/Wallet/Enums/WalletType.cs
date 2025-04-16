@@ -1,4 +1,4 @@
-namespace api.Features.Wallet;
+namespace api.Shared.Wallet.Enums;
 
 public enum WalletType
 {

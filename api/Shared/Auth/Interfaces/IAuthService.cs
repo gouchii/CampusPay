@@ -1,6 +1,6 @@
 using api.Shared.DTOs.Authentication;
 
-namespace api.Features.Auth.Interface;
+namespace api.Shared.Auth.Interfaces;
 
 public interface IAuthService
 {

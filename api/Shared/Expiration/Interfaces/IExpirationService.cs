@@ -1,6 +1,6 @@
-using api.Shared.Enum;
+using api.Shared.Expiration.Enums;
 
-namespace api.Shared.Interface;
+namespace api.Shared.Expiration.Interfaces;
 
 public interface IExpirationService
 {

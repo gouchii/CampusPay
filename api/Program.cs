@@ -1,15 +1,20 @@
 using System.Text;
 using api.Data;
 using api.Features.Auth.Interface;
-using api.Features.Auth.Repository;
+using api.Features.Auth.Interfaces;
+using api.Features.Auth.Repositories;
 using api.Features.Auth.Services;
+using api.Features.Expiration.Configs;
+using api.Features.Expiration.Services;
 using api.Features.Transaction.Interfaces;
 using api.Features.Transaction.Repository;
-using api.Features.Transaction.Service;
+using api.Features.Transaction.Services;
 using api.Features.User;
 using api.Features.Wallet;
-using api.Shared.Interface;
-using api.Shared.Service;
+using api.Shared.Auth.Handlers;
+using api.Shared.Auth.Interfaces;
+using api.Shared.Expiration.Interfaces;
+using api.Shared.Wallet.Interfaces;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Identity;
@@ -21,10 +26,7 @@ using Newtonsoft.Json.Converters;
 
 var builder = WebApplication.CreateBuilder(args);
 
-builder.Services.AddDbContext<AppDbContext>(options =>
-{
-    options.UseSqlServer(builder.Configuration.GetConnectionString("DefaultConnection"));
-});
+builder.Services.AddDbContext<AppDbContext>(options => { options.UseSqlServer(builder.Configuration.GetConnectionString("DefaultConnection")); });
 
 builder.Services.AddIdentity<UserModel, IdentityRole>(options =>
     {
@@ -61,6 +63,10 @@ builder.Services.AddAuthentication(options =>
             ClockSkew = TimeSpan.Zero
         };
     });
+
+builder.Services.Configure<ExpirationConfigTyped>(
+    builder.Configuration.GetSection("ExpirationRules"));
+
 
 builder.Services.AddCors(options =>
 {
@@ -121,6 +127,8 @@ builder.Services.AddScoped<IJwtService, JwtService>();
 builder.Services.AddScoped<IUserService, UserService>();
 builder.Services.AddScoped<IAuthService, AuthService>();
 builder.Services.AddScoped<IRefreshTokenRepository, RefreshTokenRepository>();
+builder.Services.AddScoped<IUserCredentialRepository, UserCredentialRepository>();
+builder.Services.AddScoped<IUserCredentialService, UserCredentialService>();
 
 var app = builder.Build();
 

@@ -1,12 +1,15 @@
 using System.Security.Cryptography;
 using System.Text;
 using api.Features.Auth.Interface;
+using api.Features.Auth.Interfaces;
 using api.Features.Auth.Models;
 using api.Features.User;
 using api.Features.Wallet;
+using api.Shared.Auth.Interfaces;
 using api.Shared.DTOs.Authentication;
-using api.Shared.Enum;
-using api.Shared.Interface;
+using api.Shared.Expiration.Enums;
+using api.Shared.Expiration.Interfaces;
+using api.Shared.Wallet.Interfaces;
 using Microsoft.AspNetCore.Identity;
 
 namespace api.Features.Auth.Services;
@@ -21,7 +24,7 @@ public class AuthService : IAuthService
     private readonly IExpirationService _expirationService;
     private readonly IConfiguration _config;
 
-    public AuthService (UserManager<UserModel> userManager, IWalletRepository walletRepo,
+    public AuthService(UserManager<UserModel> userManager, IWalletRepository walletRepo,
         IJwtService jwtService, SignInManager<UserModel> signInManager, IRefreshTokenRepository refreshTokenRepo,
         IExpirationService expirationService, IConfiguration config)
     {
@@ -126,7 +129,7 @@ public class AuthService : IAuthService
         };
     }
 
-    public async Task Logout (string userId)
+    public async Task Logout(string userId)
     {
         var user = await _userManager.FindByIdAsync(userId);
         if (user == null)
@@ -139,6 +142,7 @@ public class AuthService : IAuthService
         {
             await _refreshTokenRepo.RemoveRangeAsync(refreshTokens);
         }
+
         await _signInManager.SignOutAsync();
     }
 
@@ -146,10 +150,11 @@ public class AuthService : IAuthService
     {
         var oldTokens = await _refreshTokenRepo.GetByUserIdAsync(userId);
 
-        if (oldTokens.Any())
+        if (oldTokens.Count != 0)
         {
             await _refreshTokenRepo.RemoveRangeAsync(oldTokens);
         }
+
         var token = _jwtService.GenerateRefreshToken();
         var hashedToken = HashToken(token);
 
@@ -176,6 +181,7 @@ public class AuthService : IAuthService
         {
             throw new UnauthorizedAccessException("Invalid or expired refresh token.");
         }
+
         await _refreshTokenRepo.DeleteAsync(oldRefreshTokenModel);
 
         var newRefreshToken = _jwtService.GenerateRefreshToken();
@@ -199,6 +205,7 @@ public class AuthService : IAuthService
         {
             throw new InvalidOperationException("JWT signing key is missing from configuration.");
         }
+
         var hmacKey = Encoding.UTF8.GetBytes(signingKey);
         using var hmac = new HMACSHA256(hmacKey);
         return Convert.ToBase64String(hmac.ComputeHash(Encoding.UTF8.GetBytes(token)));

@@ -1,4 +1,7 @@
-namespace api.Features.Wallet;
+using api.Features.Wallet;
+using api.Shared.Wallet.Enums;
+
+namespace api.Shared.Wallet.Interfaces;
 
 public interface IWalletRepository
 {

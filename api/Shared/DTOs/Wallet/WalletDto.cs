@@ -1,4 +1,5 @@
 using api.Features.Wallet;
+using api.Shared.Wallet.Enums;
 using Newtonsoft.Json;
 using Newtonsoft.Json.Converters;
 

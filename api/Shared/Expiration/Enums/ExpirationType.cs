@@ -1,4 +1,4 @@
-namespace api.Shared.Enum;
+namespace api.Shared.Expiration.Enums;
 
 public enum ExpirationType
 {
