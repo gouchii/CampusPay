@@ -1,13 +1,10 @@
 .vs/
 .idea/
-ClientWPF/obj/project.nuget.cache
-/ClientWPF/obj
-ClientWPF/obj/project.assets.json
 api/appsettings.json
 api/appsettings.Development.json
 api/Dependencies/
 api/bin/
 api/obj/
-ClientWPF/obj/ClientWPF.csproj.nuget.dgspec.json
-ClientWPF/obj/ClientWPF.csproj.nuget.dgspec.json
-ClientWPF/obj/ClientWPF.csproj.nuget.g.props
+api.tests/Dependencies/
+api.tests/bin/
+api.tests/obj/
