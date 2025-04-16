@@ -38,9 +38,6 @@ public class TransactionService : ITransactionService
         var transactionModel = new TransactionModel()
         {
             ReceiverId = userId,
-
-            //todo maybe move the assignment of payment method after the payment process is a success
-
             Type = TransactionType.Payment,
             Amount = amount,
             Status = TransactionStatus.Pending,
@@ -62,6 +59,7 @@ public class TransactionService : ITransactionService
         {
             throw new Exception("Transaction not found");
         }
+
         if (transactionModel.TokenGeneratedAt != null && _expirationService.IsExpired(transactionModel.CreatedAt, ExpirationType.Transaction))
         {
             throw new Exception("Transaction Expired");
@@ -75,11 +73,10 @@ public class TransactionService : ITransactionService
         transactionModel.TokenGeneratedAt = DateTime.Now;
 
 
-        await _transactionRepository.UpdateAsync(transactionModel, new[]
-        {
+        await _transactionRepository.UpdateAsync(transactionModel, [
             nameof(TransactionModel.VerificationToken),
             nameof(TransactionModel.TokenGeneratedAt)
-        });
+        ]);
 
         return transactionModel.ToTransactionDto();
     }
