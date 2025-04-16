@@ -1,8 +1,8 @@
 using api.Features.Auth.Models;
-using api.Features.Transaction;
 using api.Features.Transaction.Models;
 using api.Features.User;
 using api.Features.Wallet;
+using api.Shared.Auth.Enums;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Identity.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore;
@@ -19,6 +19,7 @@ public class AppDbContext : IdentityDbContext<UserModel>
     public DbSet<TransactionModel> Transactions { get; set; }
     public DbSet<TransactionRelationModel> TransactionRelations { get; set; }
     public DbSet<RefreshTokenModel> RefreshTokens { get; set; }
+    public DbSet<UserCredentialModel> UserCredentials { get; set; }
 
     protected override void OnModelCreating(ModelBuilder modelBuilder)
     {
@@ -74,9 +75,9 @@ public class AppDbContext : IdentityDbContext<UserModel>
             .HasForeignKey(rt => rt.UserId)
             .OnDelete(DeleteBehavior.Cascade);
 
-        modelBuilder.Entity<UserModel>()
-            .HasIndex(u => u.RfidTag)
-            .IsUnique();
+        // modelBuilder.Entity<UserModel>()
+        //     .HasIndex(u => u.RfidTag)
+        //     .IsUnique();
 
         modelBuilder.Entity<UserModel>()
             .Property(u => u.CreatedAt)
@@ -95,27 +96,55 @@ public class AppDbContext : IdentityDbContext<UserModel>
             .HasDefaultValueSql("GETDATE()");
 
 
-        // **Seeding Default Roles**
-        List<IdentityRole> roles = new List<IdentityRole>
+        //todo copy this pattern
+        modelBuilder.Entity<UserCredentialModel>(entity =>
         {
+            entity.HasKey(uc => uc.Id);
+
+            entity.Property(uc => uc.Type)
+                .HasConversion<string>() // Store enum as string
+                .IsRequired();
+
+            entity.Property(uc => uc.HashedValue)
+                .IsRequired();
+
+            entity.Property(uc => uc.CreatedAt)
+                .HasDefaultValueSql("GETDATE()");
+
+            entity.HasOne(uc => uc.User)
+                .WithMany(u => u.UserCredentials)
+                .HasForeignKey(uc => uc.UserId)
+                .OnDelete(DeleteBehavior.Cascade);
+
+            entity.HasIndex(uc => new { uc.UserId, uc.Type })
+                .IsUnique(); // One credential type per user
+
+            entity.HasIndex(uc => uc.Type == CredentialType.RfidTag)
+                .IsUnique(); // Unique rfid tag per user
+        });
+
+        // **Seeding Default Roles**
+        List<IdentityRole> roles =
+        [
             new IdentityRole
             {
                 Name = "Admin",
                 NormalizedName = "ADMIN"
             },
+
             new IdentityRole
             {
                 Name = "Merchant",
                 NormalizedName = "MERCHANT"
             },
+
             new IdentityRole
             {
                 Name = "User",
                 NormalizedName = "USER"
             }
-        };
+        ];
 
         modelBuilder.Entity<IdentityRole>().HasData(roles);
-
     }
 }
