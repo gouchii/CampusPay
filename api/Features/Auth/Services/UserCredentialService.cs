@@ -57,17 +57,17 @@ public class UserCredentialService : IUserCredentialService
             throw new Exception($"User not found");
         }
 
+        var hashedValue = _passwordHasher.HashPassword(userModel, value);
+
         if (type == CredentialType.RfidTag)
         {
-            // Check if any other user already has the same RFID tag
-            var existingCredential = await _credentialRepository.GetByValueAsync(value, type);
+            var existingCredential = await _credentialRepository.GetByValueAsync(hashedValue, CredentialType.RfidTag);
             if (existingCredential != null)
             {
-                throw new InvalidOperationException("Duplicate RfidTag registration is not allowed");
+                throw new Exception("Invalid RfidTag Value");
             }
         }
 
-        var hashedValue = _passwordHasher.HashPassword(userModel, value);
         var credentialModel = new UserCredentialModel()
         {
             UserId = userId,
@@ -77,38 +77,64 @@ public class UserCredentialService : IUserCredentialService
         await _credentialRepository.AddAsync(credentialModel);
     }
 
-    public Task<bool> RemoveCredentialAsync(string userId, string value, CredentialType type)
+    public async Task RemoveCredentialAsync(string userId, string value, CredentialType type)
     {
-        throw new NotImplementedException();
+        var userModel = await _userManager.FindByIdAsync(userId);
+
+        if (userModel == null)
+        {
+            throw new Exception($"User not found");
+        }
+
+        var credentialModel = await _credentialRepository.GetByUserIdAsync(userId, type);
+        if (credentialModel == null)
+        {
+            throw new Exception($"User does not have a {type} registered yet");
+        }
+
+        var verifyValue = _passwordHasher.VerifyHashedPassword(userModel, credentialModel.HashedValue, value);
+        if (verifyValue == PasswordVerificationResult.Failed)
+        {
+            throw new Exception($"Invalid credential");
+        }
+
+        await _credentialRepository.RemoveAsync(credentialModel);
     }
 
-    public Task<bool> UpdateCredentialAsync(string userId, string value, CredentialType type)
+    public async Task UpdateCredentialAsync(string userId, string oldValue, string newValue, CredentialType type)
     {
-        throw new NotImplementedException();
+        var userModel = await _userManager.FindByIdAsync(userId);
+
+        if (userModel == null)
+        {
+            throw new Exception($"User not found");
+        }
+
+        var credentialModel = await _credentialRepository.GetByUserIdAsync(userId, type);
+        if (credentialModel == null)
+        {
+            throw new Exception($"User does not have a {type} registered yet");
+        }
+
+        var verifyOldValue = _passwordHasher.VerifyHashedPassword(userModel, credentialModel.HashedValue, oldValue);
+        if (verifyOldValue == PasswordVerificationResult.Failed)
+        {
+            throw new Exception($"Invalid credential");
+        }
+
+        var hashedNewValue = _passwordHasher.HashPassword(userModel, newValue);
+        if (type == CredentialType.RfidTag)
+        {
+            var existingCredential = await _credentialRepository.GetByValueAsync(hashedNewValue, CredentialType.RfidTag);
+            if (existingCredential != null)
+            {
+                throw new Exception("Invalid RfidTag Value");
+            }
+        }
+
+        credentialModel.HashedValue = hashedNewValue;
+        await _credentialRepository.UpdateAsync(credentialModel, [
+            nameof(UserCredentialModel.HashedValue)
+        ]);
     }
 }
-
-// public class UserCredentialService : IUserCredentialService
-// {
-//     private readonly AppDbContext _context;
-//     private readonly IPasswordHasher<UserModel> _hasher;
-//
-//     public UserCredentialService(AppDbContext context, IPasswordHasher<UserModel> hasher)
-//     {
-//         _context = context;
-//         _hasher = hasher;
-//     }
-//
-//     public async Task<bool> VerifyPinAsync(string userId, string pin)
-//     {
-//         var credential = await _context.UserCredentials
-//             .FirstOrDefaultAsync(uc => uc.UserId == userId && uc.Type == CredentialType.RfidPin);
-//
-//         if (credential == null) return false;
-//
-//         var user = await _context.Users.FindAsync(userId);
-//         var result = _hasher.VerifyHashedPassword(user, credential.HashedValue, pin);
-//
-//         return result == PasswordVerificationResult.Success;
-//     }
-// }

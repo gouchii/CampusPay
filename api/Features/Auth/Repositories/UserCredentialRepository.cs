@@ -71,6 +71,6 @@ public class UserCredentialRepository : IUserCredentialRepository
 
     public async Task<UserCredentialModel?> GetByValueAsync(string hashedValue, CredentialType type)
     {
-        return await _context.UserCredentials.FirstOrDefaultAsync(uc => uc.HashedValue == hashedValue && uc.Type == type);
+        return await _context.UserCredentials.FirstOrDefaultAsync(uc => uc.Type == type && uc.HashedValue == hashedValue);
     }
 }
