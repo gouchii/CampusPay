@@ -41,11 +41,16 @@ public class UserCredentialService : IUserCredentialService
 
         credentialModel.LastUsedAt = DateTime.Now;
 
+        if (result == PasswordVerificationResult.Failed)
+        {
+            return false;
+        }
+
         await _credentialRepository.UpdateAsync(credentialModel, [
             nameof(UserCredentialModel.LastUsedAt)
         ]);
 
-        return result == PasswordVerificationResult.Success;
+        return true;
     }
 
     public async Task RegisterCredentialAsync(string userId, string value, CredentialType type)
