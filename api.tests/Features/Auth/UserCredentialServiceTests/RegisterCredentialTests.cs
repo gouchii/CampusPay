@@ -16,11 +16,11 @@ public class RegisterCredentialTests : UserCredentialServiceTestsBase
     public async Task RegisterCredentialAsync_UserNotFound_ThrowsException()
     {
         // Arrange
-        A.CallTo(() => _userManager.FindByIdAsync(UserId)).Returns(Task.FromResult<UserModel?>(null));
+        A.CallTo(() => UserManager.FindByIdAsync(UserId)).Returns(Task.FromResult<UserModel?>(null));
         const CredentialType type = CredentialType.RfidPin;
 
         // Act
-        var act = async () => await _userCredentialService.RegisterCredentialAsync(UserId, RawValue, type);
+        var act = async () => await UserCredentialService.RegisterCredentialAsync(UserId, RawValue, type);
 
         // Assert
         await act.Should().ThrowAsync<Exception>().WithMessage("User not found");
@@ -40,21 +40,21 @@ public class RegisterCredentialTests : UserCredentialServiceTestsBase
             UserId = UserId
         };
 
-        A.CallTo(() => _userManager.FindByIdAsync(UserId))
+        A.CallTo(() => UserManager.FindByIdAsync(UserId))
             .Returns(user);
 
-        A.CallTo(() => _passwordHasher.HashPassword(user, RawValue))
+        A.CallTo(() => PasswordHasher.HashPassword(user, RawValue))
             .Returns(HashedValue);
 
-        A.CallTo(() => _credentialRepo.GetByValueAsync(HashedValue, type))
+        A.CallTo(() => CredentialRepo.GetByValueAsync(HashedValue, type))
             .ReturnsNextFromSequence(
                 Task.FromResult<UserCredentialModel?>(null), // 1st call – allow registration
                 Task.FromResult<UserCredentialModel?>(credentialModel) // 2nd call – simulate duplicate
             );
 
         // Act
-        await _userCredentialService.RegisterCredentialAsync(UserId, RawValue, type);
-        var act = async () => await _userCredentialService.RegisterCredentialAsync(UserId, RawValue, type);
+        await UserCredentialService.RegisterCredentialAsync(UserId, RawValue, type);
+        var act = async () => await UserCredentialService.RegisterCredentialAsync(UserId, RawValue, type);
 
         //Assert
         await act.Should().ThrowAsync<Exception>().WithMessage("Invalid RfidTag Value");
@@ -68,17 +68,17 @@ public class RegisterCredentialTests : UserCredentialServiceTestsBase
         var user = new UserModel { Id = UserId };
 
 
-        A.CallTo(() => _userManager.FindByIdAsync(UserId))
+        A.CallTo(() => UserManager.FindByIdAsync(UserId))
             .Returns(Task.FromResult<UserModel?>(user));
 
-        A.CallTo(() => _passwordHasher.HashPassword(user, RawValue))
+        A.CallTo(() => PasswordHasher.HashPassword(user, RawValue))
             .Returns(HashedValue);
 
         // Act
-        await _userCredentialService.RegisterCredentialAsync(UserId, RawValue, type);
+        await UserCredentialService.RegisterCredentialAsync(UserId, RawValue, type);
 
         // Assert
-        A.CallTo(() => _credentialRepo.AddAsync(A<UserCredentialModel>.That.Matches(c =>
+        A.CallTo(() => CredentialRepo.AddAsync(A<UserCredentialModel>.That.Matches(c =>
             c.UserId == UserId &&
             c.HashedValue == HashedValue &&
             c.Type == type

@@ -19,10 +19,10 @@ public class RemoveCredentialTests : UserCredentialServiceTestsBase
     {
         const CredentialType type = CredentialType.RfidPin;
         // Arrange
-        A.CallTo(() => _userManager.FindByIdAsync(UserId)).Returns(Task.FromResult<UserModel?>(null));
+        A.CallTo(() => UserManager.FindByIdAsync(UserId)).Returns(Task.FromResult<UserModel?>(null));
 
         // Act
-        var act = async () => await _userCredentialService.RemoveCredentialAsync(UserId, RawValue, type);
+        var act = async () => await UserCredentialService.RemoveCredentialAsync(UserId, RawValue, type);
 
         // Assert
         await act.Should().ThrowAsync<Exception>().WithMessage("User not found");
@@ -35,15 +35,15 @@ public class RemoveCredentialTests : UserCredentialServiceTestsBase
         var user = new UserModel { Id = "user123" };
         const CredentialType type = CredentialType.RfidPin;
 
-        A.CallTo(() => _userManager.FindByIdAsync("user123"))
+        A.CallTo(() => UserManager.FindByIdAsync("user123"))
             .ReturnsLazily(() => Task.FromResult<UserModel?>(user));
 
 
-        A.CallTo(() => _credentialRepo.GetByUserIdAsync("user123", type))
+        A.CallTo(() => CredentialRepo.GetByUserIdAsync("user123", type))
             .Returns(Task.FromResult<UserCredentialModel?>(null));
 
         // Act
-        var act = async () => await _userCredentialService.RemoveCredentialAsync("user123", "value", CredentialType.RfidPin);
+        var act = async () => await UserCredentialService.RemoveCredentialAsync("user123", "value", CredentialType.RfidPin);
 
         // Assert
         await act.Should().ThrowAsync<Exception>().WithMessage($"User does not have a {type} registered yet");
@@ -58,13 +58,13 @@ public class RemoveCredentialTests : UserCredentialServiceTestsBase
         var credentialModel = new UserCredentialModel { HashedValue = HashedValue };
 
 
-        A.CallTo(() => _userManager.FindByIdAsync(UserId)).Returns(user);
-        A.CallTo(() => _credentialRepo.GetByUserIdAsync(UserId, CredentialType.RfidPin)).Returns(credentialModel);
-        A.CallTo(() => _passwordHasher.VerifyHashedPassword(user, HashedValue, WrongRawValue))
+        A.CallTo(() => UserManager.FindByIdAsync(UserId)).Returns(user);
+        A.CallTo(() => CredentialRepo.GetByUserIdAsync(UserId, CredentialType.RfidPin)).Returns(credentialModel);
+        A.CallTo(() => PasswordHasher.VerifyHashedPassword(user, HashedValue, WrongRawValue))
             .Returns(PasswordVerificationResult.Failed);
 
         // Act
-        var act = async () => await _userCredentialService.RemoveCredentialAsync(UserId, WrongRawValue, type);
+        var act = async () => await UserCredentialService.RemoveCredentialAsync(UserId, WrongRawValue, type);
 
         // Assert
         await act.Should().ThrowAsync<Exception>().WithMessage("Invalid credential");
@@ -83,20 +83,20 @@ public class RemoveCredentialTests : UserCredentialServiceTestsBase
             Type = type
         };
 
-        A.CallTo(() => _userManager.FindByIdAsync(UserId))
+        A.CallTo(() => UserManager.FindByIdAsync(UserId))
             .ReturnsLazily(() => Task.FromResult<UserModel?>(user));
 
-        A.CallTo(() => _credentialRepo.GetByUserIdAsync(UserId, type))
+        A.CallTo(() => CredentialRepo.GetByUserIdAsync(UserId, type))
             .ReturnsLazily(() => Task.FromResult<UserCredentialModel?>(credentialModel));
 
-        A.CallTo(() => _passwordHasher.VerifyHashedPassword(user, HashedValue, RawValue))
+        A.CallTo(() => PasswordHasher.VerifyHashedPassword(user, HashedValue, RawValue))
             .Returns(PasswordVerificationResult.Success);
 
         // Act
-        await _userCredentialService.RemoveCredentialAsync(UserId, RawValue, type);
+        await UserCredentialService.RemoveCredentialAsync(UserId, RawValue, type);
 
         // Assert
-        A.CallTo(() => _credentialRepo.RemoveAsync(A<UserCredentialModel>.That.Matches(c =>
+        A.CallTo(() => CredentialRepo.RemoveAsync(A<UserCredentialModel>.That.Matches(c =>
             c == credentialModel
         ))).MustHaveHappenedOnceExactly();
     }

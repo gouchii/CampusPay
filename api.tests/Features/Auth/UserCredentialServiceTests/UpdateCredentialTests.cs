@@ -21,10 +21,10 @@ public class UpdateCredentialTests : UserCredentialServiceTestsBase
     {
         // Arrange
         const CredentialType type = CredentialType.RfidPin;
-        A.CallTo(() => _userManager.FindByIdAsync(UserId)).Returns(Task.FromResult<UserModel?>(null));
+        A.CallTo(() => UserManager.FindByIdAsync(UserId)).Returns(Task.FromResult<UserModel?>(null));
 
         // Act
-        var act = async () => await _userCredentialService.UpdateCredentialAsync(UserId, OldRawValue, NewRawValue, type);
+        var act = async () => await UserCredentialService.UpdateCredentialAsync(UserId, OldRawValue, NewRawValue, type);
 
         // Assert
         await act.Should().ThrowAsync<Exception>().WithMessage("User not found");
@@ -37,14 +37,14 @@ public class UpdateCredentialTests : UserCredentialServiceTestsBase
         var user = new UserModel { Id = UserId };
         const CredentialType type = CredentialType.RfidPin;
 
-        A.CallTo(() => _userManager.FindByIdAsync(UserId))
+        A.CallTo(() => UserManager.FindByIdAsync(UserId))
             .ReturnsLazily(() => Task.FromResult<UserModel?>(user));
 
-        A.CallTo(() => _credentialRepo.GetByUserIdAsync(UserId, CredentialType.RfidPin))
+        A.CallTo(() => CredentialRepo.GetByUserIdAsync(UserId, CredentialType.RfidPin))
             .Returns(Task.FromResult<UserCredentialModel?>(null));
 
         // Act
-        var act = async () => await _userCredentialService.UpdateCredentialAsync(UserId, OldRawValue, NewRawValue, type);
+        var act = async () => await UserCredentialService.UpdateCredentialAsync(UserId, OldRawValue, NewRawValue, type);
 
         // Assert
         await act.Should().ThrowAsync<Exception>().WithMessage($"User does not have a {type} registered yet");
@@ -59,13 +59,13 @@ public class UpdateCredentialTests : UserCredentialServiceTestsBase
         var credentialModel = new UserCredentialModel { HashedValue = "hashed" };
 
 
-        A.CallTo(() => _userManager.FindByIdAsync(UserId)).Returns(user);
-        A.CallTo(() => _credentialRepo.GetByUserIdAsync(UserId, CredentialType.RfidPin)).Returns(credentialModel);
-        A.CallTo(() => _passwordHasher.VerifyHashedPassword(user, OldHashedValue, WrongOldRawValue))
+        A.CallTo(() => UserManager.FindByIdAsync(UserId)).Returns(user);
+        A.CallTo(() => CredentialRepo.GetByUserIdAsync(UserId, CredentialType.RfidPin)).Returns(credentialModel);
+        A.CallTo(() => PasswordHasher.VerifyHashedPassword(user, OldHashedValue, WrongOldRawValue))
             .Returns(PasswordVerificationResult.Failed);
 
         // Act
-        var act = async () => await _userCredentialService.UpdateCredentialAsync(UserId, WrongOldRawValue, NewRawValue, type);
+        var act = async () => await UserCredentialService.UpdateCredentialAsync(UserId, WrongOldRawValue, NewRawValue, type);
 
         // Assert
         await act.Should().ThrowAsync<Exception>().WithMessage("Invalid credential");
@@ -84,17 +84,17 @@ public class UpdateCredentialTests : UserCredentialServiceTestsBase
             UserId = UserId
         };
 
-        A.CallTo(() => _userManager.FindByIdAsync(UserId))
+        A.CallTo(() => UserManager.FindByIdAsync(UserId))
             .Returns(user);
 
-        A.CallTo(() => _credentialRepo.GetByUserIdAsync(UserId, type))
+        A.CallTo(() => CredentialRepo.GetByUserIdAsync(UserId, type))
             .ReturnsLazily(() => Task.FromResult<UserCredentialModel?>(credentialModel));
 
-        A.CallTo(() => _passwordHasher.VerifyHashedPassword(user, OldHashedValue, OldRawValue))
+        A.CallTo(() => PasswordHasher.VerifyHashedPassword(user, OldHashedValue, OldRawValue))
             .Returns(PasswordVerificationResult.Success);
 
         // Act
-        var act = async () => await _userCredentialService.UpdateCredentialAsync(UserId, OldRawValue, NewRawValue, type);
+        var act = async () => await UserCredentialService.UpdateCredentialAsync(UserId, OldRawValue, NewRawValue, type);
         //Assert
 
         await act.Should().ThrowAsync<Exception>().WithMessage("Invalid RfidTag Value");
@@ -114,22 +114,22 @@ public class UpdateCredentialTests : UserCredentialServiceTestsBase
             Type = type
         };
 
-        A.CallTo(() => _userManager.FindByIdAsync(UserId))
+        A.CallTo(() => UserManager.FindByIdAsync(UserId))
             .ReturnsLazily(() => Task.FromResult<UserModel?>(user));
 
-        A.CallTo(() => _credentialRepo.GetByUserIdAsync(UserId, type))
+        A.CallTo(() => CredentialRepo.GetByUserIdAsync(UserId, type))
             .ReturnsLazily(() => Task.FromResult<UserCredentialModel?>(credentialModel));
-        A.CallTo(() => _credentialRepo.GetByUserIdAsync(UserId, type))
+        A.CallTo(() => CredentialRepo.GetByUserIdAsync(UserId, type))
             .ReturnsLazily(() => Task.FromResult<UserCredentialModel?>(credentialModel));
 
-        A.CallTo(() => _passwordHasher.VerifyHashedPassword(user, OldHashedValue, OldRawValue))
+        A.CallTo(() => PasswordHasher.VerifyHashedPassword(user, OldHashedValue, OldRawValue))
             .Returns(PasswordVerificationResult.Success);
 
         // Act
-        await _userCredentialService.UpdateCredentialAsync(UserId, OldRawValue, NewRawValue, type);
+        await UserCredentialService.UpdateCredentialAsync(UserId, OldRawValue, NewRawValue, type);
 
         // Assert
-        A.CallTo(() => _credentialRepo.UpdateAsync(credentialModel,
+        A.CallTo(() => CredentialRepo.UpdateAsync(credentialModel,
             nameof(UserCredentialModel.HashedValue)
         )).MustHaveHappenedOnceExactly();
     }
@@ -148,26 +148,26 @@ public class UpdateCredentialTests : UserCredentialServiceTestsBase
             Type = type
         };
 
-        A.CallTo(() => _userManager.FindByIdAsync(UserId))
+        A.CallTo(() => UserManager.FindByIdAsync(UserId))
             .ReturnsLazily(() => Task.FromResult<UserModel?>(user));
 
-        A.CallTo(() => _credentialRepo.GetByUserIdAsync(UserId, type))
+        A.CallTo(() => CredentialRepo.GetByUserIdAsync(UserId, type))
             .ReturnsLazily(() => Task.FromResult<UserCredentialModel?>(credentialModel));
 
-        A.CallTo(() => _passwordHasher.HashPassword(user, NewRawValue))
+        A.CallTo(() => PasswordHasher.HashPassword(user, NewRawValue))
             .Returns(NewHashedValue);
 
-        A.CallTo(() => _credentialRepo.GetByValueAsync(NewHashedValue, type))
+        A.CallTo(() => CredentialRepo.GetByValueAsync(NewHashedValue, type))
             .ReturnsLazily(() => Task.FromResult<UserCredentialModel?>(null));
 
-        A.CallTo(() => _passwordHasher.VerifyHashedPassword(user, OldHashedValue, OldRawValue))
+        A.CallTo(() => PasswordHasher.VerifyHashedPassword(user, OldHashedValue, OldRawValue))
             .Returns(PasswordVerificationResult.Success);
 
         // Act
-        await _userCredentialService.UpdateCredentialAsync(UserId, OldRawValue, NewRawValue, type);
+        await UserCredentialService.UpdateCredentialAsync(UserId, OldRawValue, NewRawValue, type);
 
         // Assert
-        A.CallTo(() => _credentialRepo.UpdateAsync(credentialModel,
+        A.CallTo(() => CredentialRepo.UpdateAsync(credentialModel,
             nameof(UserCredentialModel.HashedValue)
         )).MustHaveHappenedOnceExactly();
     }
