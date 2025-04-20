@@ -1,0 +1,51 @@
+using api.Features.Transaction.Enums;
+using api.Features.Transaction.Interfaces;
+using api.Features.Transaction.Models;
+using api.Shared.Expiration.Enums;
+using api.Shared.Expiration.Interfaces;
+
+namespace api.Features.Transaction.Validators;
+
+public class TransactionValidator : ITransactionValidator
+{
+    private readonly IExpirationService _expirationService;
+
+    public TransactionValidator(IExpirationService expirationService)
+    {
+        _expirationService = expirationService;
+    }
+
+    public void ValidateForVerification(TransactionModel transactionModel)
+    {
+        if (transactionModel.TokenGeneratedAt != null && _expirationService.IsExpired(transactionModel.CreatedAt, ExpirationType.Transaction))
+        {
+            throw new Exception("Transaction Expired");
+        }
+
+        if (transactionModel.Status != TransactionStatus.Pending)
+        {
+            throw new Exception("Transaction Status is not Pending");
+        }
+    }
+
+    //todo think of a better name for this method
+    public void ValidateForProcess(TransactionModel transactionModel, string token)
+    {
+        //check if the transaction exists
+        if (transactionModel == null) throw new Exception("Transaction not found");
+
+        //check if the token matches
+        if (transactionModel.VerificationToken != token) throw new Exception("Invalid token");
+
+        //check if token is expired
+        if (transactionModel.TokenGeneratedAt != null &&
+            _expirationService.IsExpired(transactionModel.TokenGeneratedAt.Value,
+                ExpirationType.TransactionToken))
+        {
+            throw new Exception("Verification expired. Please re-verify.");
+        }
+
+        //check if the transaction is already completed
+        if (transactionModel.Status != TransactionStatus.Pending) throw new Exception("Transaction Already Completed");
+    }
+}

@@ -28,7 +28,6 @@
 
     <ItemGroup>
         <Folder Include="Features\Expiration\"/>
-        <Folder Include="Features\Transaction\Validator\"/>
         <Folder Include="Shared\Expiration\"/>
     </ItemGroup>
 

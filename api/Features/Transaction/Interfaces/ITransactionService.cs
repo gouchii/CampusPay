@@ -1,3 +1,5 @@
+using api.Features.Transaction.Context;
+using api.Features.Transaction.Enums;
 using api.Shared.DTOs.QR;
 using api.Shared.DTOs.TransactionDto;
 
@@ -5,7 +7,7 @@ namespace api.Features.Transaction.Interfaces;
 
 public interface ITransactionService
 {
-    Task<QrCodeDataDto> GenerateQrCodeAsync(string userId, decimal amount);
-    Task<TransactionDto> VerifyQrScan(string transactionRef);
-    Task<TransactionResultDto> ProcessQrPaymentAsync(string senderId, string token, string transactionRef);
+    Task<QrCodeDataDto> GenerateTransactionAsync(string userId, decimal amount, TransactionType type, PaymentMethod method);
+    Task<TransactionDto> VerifyTransactionAsync(string transactionRef);
+    Task<TransactionResultDto> ProcessTransactionAsync(TransactionContext context);
 }

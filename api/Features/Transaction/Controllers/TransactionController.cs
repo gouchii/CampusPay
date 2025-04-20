@@ -1,3 +1,5 @@
+using api.Features.Transaction.Context.Interfaces;
+using api.Features.Transaction.Enums;
 using api.Features.Transaction.Interfaces;
 using api.Shared.DTOs.QR;
 using api.Shared.Extensions;
@@ -5,16 +7,19 @@ using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 
 namespace api.Features.Transaction.Controllers;
+
 [Authorize]
 [Route("api/transaction")]
 [ApiController]
 public class TransactionController : ControllerBase
 {
     private readonly ITransactionService _transactionService;
+    private readonly IQrContextBuilder _qrContextBuilder;
 
-    public TransactionController(ITransactionService transactionService)
+    public TransactionController(ITransactionService transactionService, IQrContextBuilder qrContextBuilder)
     {
         _transactionService = transactionService;
+        _qrContextBuilder = qrContextBuilder;
     }
 
     [HttpPost("generate-qr")]
@@ -31,7 +36,7 @@ public class TransactionController : ControllerBase
                 return BadRequest();
             }
 
-            var qrData = await _transactionService.GenerateQrCodeAsync(userId, request.Amount);
+            var qrData = await _transactionService.GenerateTransactionAsync(userId, request.Amount, TransactionType.Payment, PaymentMethod.Qr);
             return Ok(qrData);
         }
         catch (Exception ex)
@@ -48,7 +53,7 @@ public class TransactionController : ControllerBase
             if (!ModelState.IsValid)
                 return BadRequest(ModelState);
 
-            var transactionDto = await _transactionService.VerifyQrScan(qrData.TransactionRef);
+            var transactionDto = await _transactionService.VerifyTransactionAsync(qrData.TransactionRef);
             return Ok(transactionDto);
         }
         catch (Exception ex)
@@ -58,7 +63,7 @@ public class TransactionController : ControllerBase
     }
 
     [HttpPost("ProcessQrPayment")]
-    public async Task<IActionResult> ProcessQrPayment([FromBody] QrPaymentRequestDto qrData)
+    public async Task<IActionResult> ProcessQrPayment([FromBody] QrPaymentRequestDto request)
     {
         try
         {
@@ -71,7 +76,8 @@ public class TransactionController : ControllerBase
                 return BadRequest();
             }
 
-            var transactionResultDto = await _transactionService.ProcessQrPaymentAsync(userId, qrData.Token, qrData.TransactionRef);
+            var context = await _qrContextBuilder.BuildAsync(request, userId);
+            var transactionResultDto = await _transactionService.ProcessTransactionAsync(context);
             return Ok(transactionResultDto);
         }
         catch (Exception ex)
