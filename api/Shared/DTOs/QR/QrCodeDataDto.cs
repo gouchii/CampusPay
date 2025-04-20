@@ -1,6 +1,8 @@
+using System.ComponentModel.DataAnnotations;
+
 namespace api.Shared.DTOs.QR;
 
 public class QrCodeDataDto
 {
-    public string TransactionRef { get; set; } = String.Empty;
+    [Required] public string TransactionRef { get; set; } = String.Empty;
 }
