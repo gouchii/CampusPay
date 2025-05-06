@@ -1,5 +1,5 @@
 using api.Data;
-using api.Features.Auth.Interface;
+using api.Features.Auth.Interfaces;
 using api.Features.Auth.Models;
 using Microsoft.EntityFrameworkCore;
 

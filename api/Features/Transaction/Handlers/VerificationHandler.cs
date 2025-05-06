@@ -20,12 +20,7 @@ public class VerificationHandler : IVerificationHandler
 
     public async Task<TransactionDto> VerifyAsync(string transactionRef)
     {
-        var transactionModel = await _transactionRepo.GetByTransactionRefAsync(transactionRef);
-
-        if (transactionModel == null)
-        {
-            throw new Exception("Transaction not found");
-        }
+        var transactionModel = await _transactionRepo.GetByTransactionRefAsync(transactionRef) ?? throw new Exception("Transaction not found");
 
         _transactionValidator.ValidateForVerification(transactionModel);
 

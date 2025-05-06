@@ -17,6 +17,21 @@ public class TransactionValidator : ITransactionValidator
 
     public void ValidateForVerification(TransactionModel transactionModel)
     {
+        if (transactionModel.Amount <= 0)
+        {
+            throw new Exception($"Transaction amount invalid : {transactionModel.Amount}");
+        }
+
+        if (transactionModel.Method == PaymentMethod.None)
+        {
+            throw new Exception("Payment method is set to none");
+        }
+
+        if (transactionModel.Type == TransactionType.None)
+        {
+            throw new Exception("Transaction type is set to none");
+        }
+
         if (transactionModel.TokenGeneratedAt != null && _expirationService.IsExpired(transactionModel.CreatedAt, ExpirationType.Transaction))
         {
             throw new Exception("Transaction Expired");

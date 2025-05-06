@@ -18,6 +18,7 @@ public class QrPaymentHandler : ITransactionHandler
     private readonly IUserWalletValidator _walletValidator;
     private readonly ITransactionRepository _transactionRepo;
 
+
     public QrPaymentHandler(IWalletRepository walletRepo,
         ITransactionRepository transactionRepo,
         ITransactionValidator transactionValidator,
@@ -34,23 +35,24 @@ public class QrPaymentHandler : ITransactionHandler
         string token;
         string senderId;
 
-        if (context.ExtraData is QrPaymentData qrData)
+        if (context.ExtraData is QrPaymentData data)
         {
-            senderId = qrData.SenderId;
-            token = qrData.Token;
+            senderId = data.SenderId;
+            token = data.Token;
         }
         else
         {
-            throw new InvalidOperationException($"Expected ExtraData of type {nameof(QrPaymentData)} but received {context.ExtraData?.GetType().Name ?? "null"}.");
+            throw new InvalidOperationException($"Expected BasePaymentData of type {nameof(QrPaymentData)} but received {context.ExtraData?.GetType().Name ?? "null"}.");
         }
 
-        var transactionModel = context.Transaction;
+        var transactionModel = await _transactionRepo.GetByTransactionRefAsync(context.TransactionRef) ?? throw new Exception("Transaction not found");
 
         if (transactionModel == null) throw new Exception("Transaction not found");
 
         _transactionValidator.ValidateForProcess(transactionModel, token);
 
         var senderWallet = await _walletRepo.GetByUserIdAsync(senderId);
+
         var receiverWallet = await _walletRepo.GetByUserIdAsync(transactionModel.ReceiverId);
 
         //check if the sender's wallet exists

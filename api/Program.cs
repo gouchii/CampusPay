@@ -1,19 +1,41 @@
 using System.Text;
 using api.Data;
-using api.Features.Auth.Interface;
 using api.Features.Auth.Interfaces;
 using api.Features.Auth.Repositories;
 using api.Features.Auth.Services;
 using api.Features.Expiration.Configs;
 using api.Features.Expiration.Services;
+using api.Features.Transaction.Context.Builders;
+using api.Features.Transaction.Context.Factories;
+using api.Features.Transaction.Context.Interfaces;
+using api.Features.Transaction.Factories;
+using api.Features.Transaction.Handlers;
 using api.Features.Transaction.Interfaces;
 using api.Features.Transaction.Repository;
 using api.Features.Transaction.Services;
+using api.Features.Transaction.Validators;
 using api.Features.User;
+using api.Features.UserCredential.Context.Remove.ExtraData;
+using api.Features.UserCredential.Context.Remove.Factories;
+using api.Features.UserCredential.Context.Remove.Interfaces;
+using api.Features.UserCredential.Context.Update.ExtraData;
+using api.Features.UserCredential.Context.Update.Factories;
+using api.Features.UserCredential.Context.Update.Interfaces;
+using api.Features.UserCredential.Factories;
+using api.Features.UserCredential.Handlers.Find;
+using api.Features.UserCredential.Handlers.Register;
+using api.Features.UserCredential.Handlers.Remove;
+using api.Features.UserCredential.Handlers.Update;
+using api.Features.UserCredential.Handlers.Validate;
+using api.Features.UserCredential.Handlers.Verify;
+using api.Features.UserCredential.Interfaces;
+using api.Features.UserCredential.Repositories;
+using api.Features.UserCredential.Services;
 using api.Features.Wallet;
 using api.Shared.Auth.Handlers;
-using api.Shared.Auth.Interfaces;
 using api.Shared.Expiration.Interfaces;
+using api.Shared.Swagger;
+using api.Shared.UserCredential.Interfaces;
 using api.Shared.Wallet.Interfaces;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.AspNetCore.Authorization;
@@ -87,6 +109,7 @@ builder.Services.AddControllers().AddNewtonsoftJson(options =>
 builder.Services.AddEndpointsApiExplorer();
 builder.Services.AddSwaggerGen(options =>
 {
+    options.SchemaFilter<EnumSchemaFilter>();
     options.SwaggerDoc("v1", new OpenApiInfo { Title = "Demo API", Version = "v1" });
     options.AddSecurityDefinition("Bearer", new OpenApiSecurityScheme
     {
@@ -118,17 +141,63 @@ builder.Services.AddAuthorization(options =>
         policy => policy.Requirements.Add(new RoleHierarchyHandler.RoleRequirement("Merchant")));
 });
 
-builder.Services.AddSingleton<IAuthorizationHandler, RoleHierarchyHandler>();
+// expiration
 builder.Services.AddSingleton<IExpirationService, ExpirationService>();
+
+// wallet
 builder.Services.AddScoped<IWalletRepository, WalletRepository>();
-builder.Services.AddScoped<ITransactionRepository, TransactionRepository>();
-builder.Services.AddScoped<ITransactionService, TransactionService>();
-builder.Services.AddScoped<IJwtService, JwtService>();
+
+// user
 builder.Services.AddScoped<IUserService, UserService>();
+
+// auth
+builder.Services.AddScoped<IJwtService, JwtService>();
 builder.Services.AddScoped<IAuthService, AuthService>();
 builder.Services.AddScoped<IRefreshTokenRepository, RefreshTokenRepository>();
+
+builder.Services.AddSingleton<IAuthorizationHandler, RoleHierarchyHandler>();
+
+// transaction
+builder.Services.AddScoped<ITransactionRepository, TransactionRepository>();
+builder.Services.AddScoped<ITransactionService, TransactionService>();
+builder.Services.AddScoped<ITransactionFactory, TransactionFactory>();
+builder.Services.AddScoped<ITransactionHandlerFactory, TransactionHandlerFactory>();
+builder.Services.AddScoped<QrPaymentHandler>();
+builder.Services.AddScoped<RfidPaymentHandler>();
+builder.Services.AddScoped<ITransactionValidator, TransactionValidator>();
+builder.Services.AddScoped<IUserWalletValidator, UserWalletValidator>();
+builder.Services.AddScoped<IVerificationHandler, VerificationHandler>();
+builder.Services.AddScoped<QrPaymentContextBuilder>();
+builder.Services.AddScoped<RfidPaymentContextBuilder>();
+builder.Services.AddScoped<ITransactionContextBuilderFactory, TransactionContextBuilderFactory>();
+builder.Services.AddScoped<ITransactionUpdateHandler, TransactionUpdateHandler>();
+builder.Services.AddScoped<ITransactionQueryHandler, TransactionQueryHandler>();
+//user credential
 builder.Services.AddScoped<IUserCredentialRepository, UserCredentialRepository>();
 builder.Services.AddScoped<IUserCredentialService, UserCredentialService>();
+builder.Services.AddScoped<IRemoveCredentialContextBuilderFactory, RemoveCredentialContextBuilderFactory>();
+builder.Services.AddScoped<RemoveRfidPinData>();
+builder.Services.AddScoped<RemoveRfidTagData>();
+builder.Services.AddScoped<IUpdateCredentialContextBuilderFactory, UpdateCredentialContextBuilderFactory>();
+builder.Services.AddScoped<UpdateRfidTagData>();
+builder.Services.AddScoped<UpdateRfidPinData>();
+builder.Services.AddScoped<ICredentialFactory, CredentialFactory>();
+builder.Services.AddScoped<ICredentialFinderHandler, CredentialFinderHandler>();
+builder.Services.AddScoped<ICredentialRegistrationHandlerFactory, CredentialRegistrationHandlerFactory>();
+builder.Services.AddScoped<RfidTagRegistrationHandler>();
+builder.Services.AddScoped<RfidPinRegistrationHandler>();
+builder.Services.AddScoped<ICredentialRemoverHandlerFactory, CredentialRemoverHandlerFactory>();
+builder.Services.AddScoped<RfidTagRemoverHandler>();
+builder.Services.AddScoped<RfidPinRemoverHandler>();
+builder.Services.AddScoped<ICredentialUpdateHandlerFactory, CredentialUpdateHandlerFactory>();
+builder.Services.AddScoped<RfidTagUpdateHandler>();
+builder.Services.AddScoped<RfidPinUpdateHandler>();
+builder.Services.AddScoped<ICredentialValidatorHandlerFactory, CredentialValidatorHandlerFactory>();
+builder.Services.AddScoped<RfidTagValidatorHandler>();
+builder.Services.AddScoped<ICredentialVerificationHandlerFactory, CredentialVerificationHandlerFactory>();
+builder.Services.AddScoped<RfidTagVerificationHandler>();
+builder.Services.AddScoped<RfidPinVerificationHandler>();
+
 
 var app = builder.Build();
 

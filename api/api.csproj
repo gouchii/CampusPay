@@ -29,6 +29,7 @@
     <ItemGroup>
         <Folder Include="Features\Expiration\"/>
         <Folder Include="Shared\Expiration\"/>
+        <Folder Include="Shared\UserCredential\"/>
     </ItemGroup>
 
 </Project>

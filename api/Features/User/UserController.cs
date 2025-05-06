@@ -19,7 +19,7 @@ public class UserController : ControllerBase
     }
 
     [Authorize(Roles = "Admin")]
-    [HttpGet("GetAll")]
+    [HttpGet("all")]
     public async Task<IActionResult> GetAll()
     {
         try
@@ -43,7 +43,7 @@ public class UserController : ControllerBase
     }
 
     [Authorize]
-    [HttpGet("Get")]
+    [HttpGet("")]
     public async Task<IActionResult> Get()
     {
         try
@@ -67,7 +67,7 @@ public class UserController : ControllerBase
     }
 
     [Authorize]
-    [HttpPatch("PatchFullName")]
+    [HttpPatch("full-name")]
     public async Task<IActionResult> PatchFullname([FromBody] PatchFullNameDto request)
     {
         try

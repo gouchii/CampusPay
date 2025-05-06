@@ -1,6 +1,6 @@
 using api.Features.Auth.Models;
 
-namespace api.Features.Auth.Interface;
+namespace api.Features.Auth.Interfaces;
 
 public interface IRefreshTokenRepository
 {

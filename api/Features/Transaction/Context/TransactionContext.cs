@@ -1,10 +1,13 @@
 using api.Features.Transaction.Context.ExtraData;
+using api.Features.Transaction.Enums;
 using api.Features.Transaction.Models;
 
 namespace api.Features.Transaction.Context;
 
 public class TransactionContext
 {
-    public TransactionModel? Transaction { get; init; }
-    public PaymentExtraData? ExtraData { get; init; }
+    public TransactionType Type { get; init; }
+    public PaymentMethod Method { get; init; }
+    public string TransactionRef { get; init; } = string.Empty;
+    public BaseExtraData? ExtraData { get; init; }
 }

@@ -1,6 +1,7 @@
 using System.ComponentModel.DataAnnotations;
 using api.Features.Auth.Models;
 using api.Features.Transaction.Models;
+using api.Features.UserCredential.Models;
 using api.Features.Wallet;
 using Microsoft.AspNetCore.Identity;
 
@@ -13,6 +14,8 @@ public class UserModel : IdentityUser
     [MaxLength(5)] public int SchoolIdNumber { get; set; }
 
     public DateTime CreatedAt { get; init; }
+
+    public bool IsRfidPaymentEnabled { get; set; } = false;
 
     public List<RefreshTokenModel> RefreshTokens { get; init; } = [];
     public List<WalletModel> Wallets { get; init; } = [];

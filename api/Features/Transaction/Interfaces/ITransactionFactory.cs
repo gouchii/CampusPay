@@ -1,10 +1,11 @@
 using api.Features.Transaction.Enums;
 using api.Features.Transaction.Models;
+using api.Shared.DTOs.TransactionDto;
 
 namespace api.Features.Transaction.Interfaces;
 
 public interface ITransactionFactory
 {
-    Task<TransactionModel> CreateTransactionAsync(string userId, decimal amount, TransactionType transactionType, PaymentMethod paymentMethod);
+    Task<TransactionRefDto> CreateTransactionAsync(string userId);
     Task<TransactionModel?> GetByTransactionRefAsync(string transactionRef);
 }

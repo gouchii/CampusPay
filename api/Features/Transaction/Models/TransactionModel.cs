@@ -17,14 +17,14 @@ public class TransactionModel
 
     public UserModel? Receiver { get; init; }
 
-    [Required] public TransactionType Type { get; init; }
+    public TransactionType Type { get; set; } = TransactionType.None;
 
-    public PaymentMethod Method { get; set; }
+    public PaymentMethod Method { get; set; } = PaymentMethod.None;
 
     [Required]
     [Range(0.01, double.MaxValue)]
     [Precision(18, 4)]
-    public decimal Amount { get; init; }
+    public decimal Amount { get; set; }
 
     [Required] public DateTime CreatedAt { get; init; }
 

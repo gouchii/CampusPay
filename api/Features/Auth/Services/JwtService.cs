@@ -2,7 +2,6 @@ using System.IdentityModel.Tokens.Jwt;
 using System.Security.Claims;
 using System.Security.Cryptography;
 using System.Text;
-using api.Features.Auth.Interface;
 using api.Features.Auth.Interfaces;
 using api.Features.User;
 using api.Shared.Expiration.Interfaces;

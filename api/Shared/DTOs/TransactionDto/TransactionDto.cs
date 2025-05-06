@@ -6,13 +6,15 @@ namespace api.Shared.DTOs.TransactionDto;
 
 public class TransactionDto
 {
-
     public string? SenderName { get; set; } = string.Empty;
 
     public string? ReceiverName { get; set; } = string.Empty;
 
     [JsonConverter(typeof(StringEnumConverter))]
     public TransactionType Type { get; set; }
+
+    [JsonConverter(typeof(StringEnumConverter))]
+    public PaymentMethod Method { get; set; }
 
     public decimal Amount { get; set; }
 

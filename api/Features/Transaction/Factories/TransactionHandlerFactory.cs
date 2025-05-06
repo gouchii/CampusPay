@@ -18,6 +18,7 @@ public class TransactionHandlerFactory : ITransactionHandlerFactory
         return (type, method) switch
         {
             (TransactionType.Payment, PaymentMethod.Qr) => _serviceProvider.GetRequiredService<QrPaymentHandler>(),
+            (TransactionType.Payment, PaymentMethod.Rfid) => _serviceProvider.GetRequiredService<RfidPaymentHandler>(),
             _ => throw new NotSupportedException("Handler not implemented")
         };
     }

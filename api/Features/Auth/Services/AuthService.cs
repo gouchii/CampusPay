@@ -1,11 +1,9 @@
 using System.Security.Cryptography;
 using System.Text;
-using api.Features.Auth.Interface;
 using api.Features.Auth.Interfaces;
 using api.Features.Auth.Models;
 using api.Features.User;
 using api.Features.Wallet;
-using api.Shared.Auth.Interfaces;
 using api.Shared.DTOs.Authentication;
 using api.Shared.Expiration.Enums;
 using api.Shared.Expiration.Interfaces;

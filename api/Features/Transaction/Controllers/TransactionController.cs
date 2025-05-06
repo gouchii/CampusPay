@@ -1,7 +1,9 @@
 using api.Features.Transaction.Context.Interfaces;
 using api.Features.Transaction.Enums;
+using api.Features.Transaction.Helpers;
 using api.Features.Transaction.Interfaces;
 using api.Shared.DTOs.QR;
+using api.Shared.DTOs.TransactionDto;
 using api.Shared.Extensions;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
@@ -14,16 +16,16 @@ namespace api.Features.Transaction.Controllers;
 public class TransactionController : ControllerBase
 {
     private readonly ITransactionService _transactionService;
-    private readonly IQrContextBuilder _qrContextBuilder;
+    private readonly ITransactionContextBuilderFactory _transactionContextBuilder;
 
-    public TransactionController(ITransactionService transactionService, IQrContextBuilder qrContextBuilder)
+    public TransactionController(ITransactionService transactionService, ITransactionContextBuilderFactory transactionContextBuilder)
     {
         _transactionService = transactionService;
-        _qrContextBuilder = qrContextBuilder;
+        _transactionContextBuilder = transactionContextBuilder;
     }
 
-    [HttpPost("generate-qr")]
-    public async Task<IActionResult> GenerateQrCode([FromBody] QrGenerateRequestDto request)
+    [HttpPost("")]
+    public async Task<IActionResult> GenerateTransaction()
     {
         try
         {
@@ -36,7 +38,7 @@ public class TransactionController : ControllerBase
                 return BadRequest();
             }
 
-            var qrData = await _transactionService.GenerateTransactionAsync(userId, request.Amount, TransactionType.Payment, PaymentMethod.Qr);
+            var qrData = await _transactionService.GenerateTransactionAsync(userId);
             return Ok(qrData);
         }
         catch (Exception ex)
@@ -45,15 +47,15 @@ public class TransactionController : ControllerBase
         }
     }
 
-    [HttpPost("verifyQrScan")]
-    public async Task<IActionResult> VerifyQrScan([FromBody] QrCodeDataDto qrData)
+    [HttpPost("verify/{transactionRef}")]
+    public async Task<IActionResult> VerifyQrScan([FromRoute] string transactionRef)
     {
         try
         {
             if (!ModelState.IsValid)
                 return BadRequest(ModelState);
 
-            var transactionDto = await _transactionService.VerifyTransactionAsync(qrData.TransactionRef);
+            var transactionDto = await _transactionService.VerifyTransactionAsync(transactionRef);
             return Ok(transactionDto);
         }
         catch (Exception ex)
@@ -62,7 +64,26 @@ public class TransactionController : ControllerBase
         }
     }
 
-    [HttpPost("ProcessQrPayment")]
+    [HttpPatch("{transactionRef}")]
+    public async Task<IActionResult> UpdateTransaction([FromRoute] string transactionRef, [FromBody] UpdateTransactionRequestDto requestDto)
+    {
+        try
+        {
+            var userId = User.GetUserId();
+            if (userId == null) return BadRequest();
+
+            if (!ModelState.IsValid) return BadRequest(ModelState);
+
+            var transactionDto = await _transactionService.UpdateTransactionAsync(userId, transactionRef, requestDto);
+            return Ok(transactionDto);
+        }
+        catch (Exception ex)
+        {
+            return BadRequest(ex.Message);
+        }
+    }
+
+    [HttpPost("payment/qr/process")]
     public async Task<IActionResult> ProcessQrPayment([FromBody] QrPaymentRequestDto request)
     {
         try
@@ -76,9 +97,50 @@ public class TransactionController : ControllerBase
                 return BadRequest();
             }
 
-            var context = await _qrContextBuilder.BuildAsync(request, userId);
+            var builder = _transactionContextBuilder.GetBuilder<BasePaymentRequestDto>(TransactionType.Payment, PaymentMethod.Qr);
+            var context = builder.Build(request, userId);
             var transactionResultDto = await _transactionService.ProcessTransactionAsync(context);
             return Ok(transactionResultDto);
+        }
+        catch (Exception ex)
+        {
+            return BadRequest(ex.Message);
+        }
+    }
+
+    [HttpPost("payment/rfid/process")]
+    public async Task<IActionResult> ProcessRfidPayment([FromBody] RfidPaymentRequestDto request)
+    {
+        try
+        {
+            if (!ModelState.IsValid) return BadRequest(ModelState);
+
+            var userId = User.GetUserId();
+            if (userId == null) return BadRequest();
+
+            var builder = _transactionContextBuilder.GetBuilder<BasePaymentRequestDto>(TransactionType.Payment, PaymentMethod.Rfid);
+            var context = builder.Build(request, userId);
+            var transactionResultDto = await _transactionService.ProcessTransactionAsync(context);
+            return Ok(transactionResultDto);
+        }
+        catch (Exception ex)
+        {
+            return BadRequest(ex.Message);
+        }
+    }
+
+    [HttpGet]
+    public async Task<IActionResult> GetAll([FromQuery] TransactionQueryObject query)
+    {
+        try
+        {
+            if (!ModelState.IsValid) return BadRequest(ModelState);
+
+            var userId = User.GetUserId();
+            if (userId == null) return BadRequest();
+
+            var transactions = await _transactionService.GetAllAsync(userId, query);
+            return Ok(transactions);
         }
         catch (Exception ex)
         {

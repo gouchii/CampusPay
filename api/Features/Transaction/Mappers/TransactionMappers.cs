@@ -12,6 +12,7 @@ public static class TransactionMappers
             SenderName = transactionModelModel.Sender?.UserName,
             ReceiverName = transactionModelModel.Receiver?.UserName,
             Type = transactionModelModel.Type, //add the .ToString() if not working properly
+            Method = transactionModelModel.Method,
             Amount = transactionModelModel.Amount,
             CreatedAt = transactionModelModel.CreatedAt,
             Status = transactionModelModel.Status,
@@ -22,7 +23,6 @@ public static class TransactionMappers
                 .Select(tr => tr.ToTransactionRelationDto()).ToList() ?? [],
             ChildRelations = transactionModelModel.ChildRelations?
                 .Select(tr => tr.ToTransactionRelationDto()).ToList() ?? []
-
         };
     }
 }

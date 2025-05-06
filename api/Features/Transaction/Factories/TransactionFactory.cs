@@ -1,6 +1,7 @@
 using api.Features.Transaction.Enums;
 using api.Features.Transaction.Interfaces;
 using api.Features.Transaction.Models;
+using api.Shared.DTOs.TransactionDto;
 
 namespace api.Features.Transaction.Factories;
 
@@ -13,21 +14,20 @@ public class TransactionFactory : ITransactionFactory
         _transactionRepo = transactionRepo;
     }
 
-    public async Task<TransactionModel> CreateTransactionAsync(string userId, decimal amount,
-        TransactionType transactionType, PaymentMethod paymentMethod)
+    public async Task<TransactionRefDto> CreateTransactionAsync(string userId)
     {
         var transactionRef = GenerateTransactionRef();
         var transactionModel = new TransactionModel
         {
             ReceiverId = userId,
-            Type = transactionType,
-            Method = paymentMethod,
-            Amount = amount,
             Status = TransactionStatus.Pending,
             TransactionRef = transactionRef,
         };
         await _transactionRepo.CreateAsync(transactionModel);
-        return transactionModel;
+        return new TransactionRefDto
+        {
+            TransactionRef = transactionRef
+        };
     }
 
     public async Task<TransactionModel?> GetByTransactionRefAsync(string transactionRef)

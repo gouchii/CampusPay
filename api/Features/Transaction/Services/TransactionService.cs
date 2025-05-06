@@ -1,17 +1,9 @@
-using System.Security.Cryptography;
 using api.Features.Transaction.Context;
 using api.Features.Transaction.Enums;
+using api.Features.Transaction.Helpers;
 using api.Features.Transaction.Interfaces;
-using api.Features.Transaction.Mappers;
-using api.Features.Transaction.Models;
-using api.Features.User;
-using api.Features.Wallet;
-using api.Shared.DTOs.QR;
 using api.Shared.DTOs.TransactionDto;
-using api.Shared.Expiration.Enums;
-using api.Shared.Expiration.Interfaces;
-using api.Shared.Wallet.Interfaces;
-using Microsoft.AspNetCore.Identity;
+
 
 namespace api.Features.Transaction.Services;
 
@@ -20,25 +12,24 @@ public class TransactionService : ITransactionService
     private readonly ITransactionFactory _transactionFactory;
     private readonly IVerificationHandler _verificationHandler;
     private readonly ITransactionHandlerFactory _transactionHandlerFactory;
+    private readonly ITransactionUpdateHandler _updateHandler;
+    private readonly ITransactionQueryHandler _queryHandler;
 
     public TransactionService(ITransactionFactory transactionFactory,
         IVerificationHandler verificationHandler,
-        ITransactionHandlerFactory transactionHandlerFactory)
+        ITransactionHandlerFactory transactionHandlerFactory, ITransactionUpdateHandler updateHandler, ITransactionQueryHandler queryHandler)
     {
         _transactionFactory = transactionFactory;
         _verificationHandler = verificationHandler;
         _transactionHandlerFactory = transactionHandlerFactory;
+        _updateHandler = updateHandler;
+        _queryHandler = queryHandler;
     }
 
-    public async Task<QrCodeDataDto> GenerateTransactionAsync(string userId, decimal amount,
-        TransactionType type, PaymentMethod method)
+
+    public async Task<TransactionRefDto> GenerateTransactionAsync(string userId)
     {
-        //I can make it so that transactionFactory spits out the transactionRef, but I am too lazy rn.
-        var transactionModel = await _transactionFactory.CreateTransactionAsync(userId, amount, type, method);
-        return new QrCodeDataDto
-        {
-            TransactionRef = transactionModel.TransactionRef
-        };
+        return await _transactionFactory.CreateTransactionAsync(userId);
     }
 
     public async Task<TransactionDto> VerifyTransactionAsync(string transactionRef)
@@ -46,16 +37,20 @@ public class TransactionService : ITransactionService
         return await _verificationHandler.VerifyAsync(transactionRef);
     }
 
-
     public async Task<TransactionResultDto> ProcessTransactionAsync(TransactionContext context)
     {
-        if (context.Transaction == null)
-        {
-            throw new Exception("Transaction not found");
-        }
-
-        var transactionHandler = _transactionHandlerFactory.GetHandler(context.Transaction.Type, context.Transaction.Method);
+        var transactionHandler = _transactionHandlerFactory.GetHandler(context.Type, context.Method);
 
         return await transactionHandler.HandleAsync(context);
+    }
+
+    public async Task<TransactionDto> UpdateTransactionAsync(string userId, string transactionRef, UpdateTransactionRequestDto updateDto)
+    {
+        return await _updateHandler.UpdateAsync(userId, transactionRef, updateDto);
+    }
+
+    public async Task<List<TransactionDto>> GetAllAsync(string userId, TransactionQueryObject queryObject)
+    {
+        return await _queryHandler.GetAllAsync(userId, queryObject);
     }
 }
