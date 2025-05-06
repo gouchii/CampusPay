@@ -46,13 +46,12 @@ public class TransactionValidator : ITransactionValidator
     //todo think of a better name for this method
     public void ValidateForProcess(TransactionModel transactionModel, string token)
     {
-        //check if the transaction exists
         if (transactionModel == null) throw new Exception("Transaction not found");
 
-        //check if the token matches
+
         if (transactionModel.VerificationToken != token) throw new Exception("Invalid token");
 
-        //check if token is expired
+
         if (transactionModel.TokenGeneratedAt != null &&
             _expirationService.IsExpired(transactionModel.TokenGeneratedAt.Value,
                 ExpirationType.TransactionToken))
@@ -60,7 +59,6 @@ public class TransactionValidator : ITransactionValidator
             throw new Exception("Verification expired. Please re-verify.");
         }
 
-        //check if the transaction is already completed
         if (transactionModel.Status != TransactionStatus.Pending) throw new Exception("Transaction Already Completed");
     }
 }
