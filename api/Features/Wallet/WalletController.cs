@@ -36,7 +36,7 @@ public class WalletController : ControllerBase
     }
 
 
-    [HttpGet("")]
+    [HttpGet]
     public async Task<IActionResult> GetByUserId()
     {
         var userId = User.GetUserId();

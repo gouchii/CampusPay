@@ -74,7 +74,7 @@ public class AuthController : ControllerBase
     }
 
     [Authorize]
-    [HttpPost("refreshTokens")]
+    [HttpPost("refresh-tokens")]
     public async Task<IActionResult> RefreshTokens([FromBody] RefreshTokenRequestDto requestDto)
     {
         try

@@ -43,7 +43,7 @@ public class UserController : ControllerBase
     }
 
     [Authorize]
-    [HttpGet("")]
+    [HttpGet]
     public async Task<IActionResult> Get()
     {
         try
