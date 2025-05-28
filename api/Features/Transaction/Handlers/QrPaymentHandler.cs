@@ -1,12 +1,16 @@
 using System.Transactions;
+using api.Features.SignalR;
 using api.Features.Transaction.Context;
 using api.Features.Transaction.Context.ExtraData;
-using api.Features.Transaction.Enums;
 using api.Features.Transaction.Interfaces;
+using api.Features.Transaction.Mappers;
 using api.Features.Transaction.Models;
+using api.Features.Wallet;
 using api.Shared.DTOs.TransactionDto;
-using api.Shared.Wallet.Interfaces;
-using TransactionStatus = api.Features.Transaction.Enums.TransactionStatus;
+using api.Shared.Enums.Transaction;
+using api.Shared.Interfaces.Wallet;
+using Microsoft.AspNetCore.SignalR;
+using TransactionStatus = api.Shared.Enums.Transaction.TransactionStatus;
 
 
 namespace api.Features.Transaction.Handlers;
@@ -17,17 +21,18 @@ public class QrPaymentHandler : ITransactionHandler
     private readonly ITransactionValidator _transactionValidator;
     private readonly IUserWalletValidator _walletValidator;
     private readonly ITransactionRepository _transactionRepo;
-
+    private readonly IHubContext<UserHub> _hubContext;
 
     public QrPaymentHandler(IWalletRepository walletRepo,
         ITransactionRepository transactionRepo,
         ITransactionValidator transactionValidator,
-        IUserWalletValidator walletValidator)
+        IUserWalletValidator walletValidator, IHubContext<UserHub> hubContext)
     {
         _walletRepo = walletRepo;
         _transactionRepo = transactionRepo;
         _transactionValidator = transactionValidator;
         _walletValidator = walletValidator;
+        _hubContext = hubContext;
     }
 
     public async Task<TransactionResultDto> HandleAsync(TransactionContext context)
@@ -88,6 +93,24 @@ public class QrPaymentHandler : ITransactionHandler
             nameof(TransactionModel.Method)
         });
         scope.Complete();
+
+        // After scope.Complete();
+
+        var senderWalletDto = senderWallet.ToWalletDto();
+        var receiverWalletDto = receiverWallet.ToWalletDto();
+        var transactionDto = transactionModel.ToTransactionDto();
+
+        Console.WriteLine($"[SignalR] Sending ReceiveWalletUpdate to Sender ({senderId}): {System.Text.Json.JsonSerializer.Serialize(senderWalletDto)}");
+        await _hubContext.Clients.User(senderId).SendAsync("ReceiveWalletUpdate", senderWalletDto);
+
+        Console.WriteLine($"[SignalR] Sending ReceiveWalletUpdate to Receiver ({transactionModel.ReceiverId}): {System.Text.Json.JsonSerializer.Serialize(receiverWalletDto)}");
+        await _hubContext.Clients.User(transactionModel.ReceiverId).SendAsync("ReceiveWalletUpdate", receiverWalletDto);
+
+        Console.WriteLine($"[SignalR] Sending ReceiveTransaction to Sender ({senderId}): {System.Text.Json.JsonSerializer.Serialize(transactionDto)}");
+        await _hubContext.Clients.User(senderId).SendAsync("ReceiveTransaction", transactionDto);
+
+        Console.WriteLine($"[SignalR] Sending ReceiveTransaction to Receiver ({transactionModel.ReceiverId}): {System.Text.Json.JsonSerializer.Serialize(transactionDto)}");
+        await _hubContext.Clients.User(transactionModel.ReceiverId).SendAsync("ReceiveTransaction", transactionDto);
 
         return new TransactionResultDto
         {

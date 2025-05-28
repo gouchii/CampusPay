@@ -1,16 +1,20 @@
 using System.Transactions;
+using api.Features.SignalR;
 using api.Features.Transaction.Context;
 using api.Features.Transaction.Context.ExtraData;
-using api.Features.Transaction.Enums;
 using api.Features.Transaction.Interfaces;
+using api.Features.Transaction.Mappers;
 using api.Features.Transaction.Models;
 using api.Features.User;
-using api.Shared.Auth.Enums;
+using api.Features.Wallet;
 using api.Shared.DTOs.TransactionDto;
+using api.Shared.Enums.Transaction;
+using api.Shared.Enums.UserCredential;
+using api.Shared.Interfaces.Wallet;
 using api.Shared.UserCredential.Interfaces;
-using api.Shared.Wallet.Interfaces;
 using Microsoft.AspNetCore.Identity;
-using TransactionStatus = api.Features.Transaction.Enums.TransactionStatus;
+using Microsoft.AspNetCore.SignalR;
+using TransactionStatus = api.Shared.Enums.Transaction.TransactionStatus;
 
 namespace api.Features.Transaction.Handlers;
 
@@ -22,10 +26,11 @@ public class RfidPaymentHandler : ITransactionHandler
     private readonly ITransactionRepository _transactionRepo;
     private readonly IUserCredentialService _credentialService;
     private readonly UserManager<UserModel> _userManager;
+    private readonly IHubContext<UserHub> _hubContext;
 
     public RfidPaymentHandler(IWalletRepository walletRepo, ITransactionValidator transactionValidator,
         IUserWalletValidator walletValidator, ITransactionRepository transactionRepo,
-        IUserCredentialService credentialService, UserManager<UserModel> userManager)
+        IUserCredentialService credentialService, UserManager<UserModel> userManager, IHubContext<UserHub> hubContext)
     {
         _walletRepo = walletRepo;
         _transactionValidator = transactionValidator;
@@ -33,6 +38,7 @@ public class RfidPaymentHandler : ITransactionHandler
         _transactionRepo = transactionRepo;
         _credentialService = credentialService;
         _userManager = userManager;
+        _hubContext = hubContext;
     }
 
     public async Task<TransactionResultDto> HandleAsync(TransactionContext context)
@@ -98,6 +104,10 @@ public class RfidPaymentHandler : ITransactionHandler
         ]);
         scope.Complete();
 
+        await _hubContext.Clients.User(senderId).SendAsync("ReceiveWalletUpdate", senderWallet.ToWalletDto());
+        await _hubContext.Clients.User(transactionModel.ReceiverId).SendAsync("ReceiveWalletUpdate", receiverWallet.ToWalletDto());
+        await _hubContext.Clients.User(senderId).SendAsync("ReceiveTransaction", transactionModel.ToTransactionDto());
+        await _hubContext.Clients.User(transactionModel.ReceiverId).SendAsync("ReceiveTransaction", transactionModel.ToTransactionDto());
         return new TransactionResultDto
         {
             Message = "Transaction Successful",

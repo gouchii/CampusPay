@@ -5,6 +5,7 @@ using api.Features.Auth.Repositories;
 using api.Features.Auth.Services;
 using api.Features.Expiration.Configs;
 using api.Features.Expiration.Services;
+using api.Features.SignalR;
 using api.Features.Transaction.Context.Builders;
 using api.Features.Transaction.Context.Factories;
 using api.Features.Transaction.Context.Interfaces;
@@ -32,14 +33,15 @@ using api.Features.UserCredential.Interfaces;
 using api.Features.UserCredential.Repositories;
 using api.Features.UserCredential.Services;
 using api.Features.Wallet;
-using api.Shared.Auth.Handlers;
-using api.Shared.Expiration.Interfaces;
+using api.Shared.Handlers.Auth;
+using api.Shared.Interfaces.Expiration;
+using api.Shared.Interfaces.Wallet;
 using api.Shared.Swagger;
 using api.Shared.UserCredential.Interfaces;
-using api.Shared.Wallet.Interfaces;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Identity;
+using Microsoft.AspNetCore.SignalR;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.IdentityModel.Tokens;
 using Microsoft.OpenApi.Models;
@@ -64,6 +66,13 @@ builder.Services.AddIdentity<UserModel, IdentityRole>(options =>
 var jwtSettings = builder.Configuration.GetSection("JWT");
 //todo add a null check on signing key
 var key = Encoding.UTF8.GetBytes(jwtSettings["SigningKey"]!);
+// builder.Services.AddSingleton<IUserIdProvider, CustomUserIdProvider>();
+builder.Services.AddSignalR()
+    .AddNewtonsoftJsonProtocol(options =>
+    {
+        options.PayloadSerializerSettings.ReferenceLoopHandling = ReferenceLoopHandling.Ignore;
+        options.PayloadSerializerSettings.NullValueHandling = NullValueHandling.Ignore;
+    });
 
 builder.Services.AddAuthentication(options =>
     {
@@ -74,6 +83,7 @@ builder.Services.AddAuthentication(options =>
     {
         options.RequireHttpsMetadata = true;
         options.SaveToken = true;
+
         options.TokenValidationParameters = new TokenValidationParameters
         {
             ValidateIssuerSigningKey = true,
@@ -84,7 +94,28 @@ builder.Services.AddAuthentication(options =>
             ValidAudience = jwtSettings["Audience"],
             ClockSkew = TimeSpan.Zero
         };
+
+        // Support SignalR authentication via access_token query param
+        options.Events = new JwtBearerEvents
+        {
+            OnMessageReceived = context =>
+            {
+                var accessToken = context.Request.Query["access_token"];
+                var path = context.HttpContext.Request.Path;
+
+                if (!string.IsNullOrEmpty(accessToken) &&
+                    (path.StartsWithSegments("/userhub") ||
+                     path.StartsWithSegments("/wallethub") ||
+                     path.StartsWithSegments("/transactionhub")))
+                {
+                    context.Token = accessToken;
+                }
+
+                return Task.CompletedTask;
+            }
+        };
     });
+
 
 builder.Services.Configure<ExpirationConfigTyped>(
     builder.Configuration.GetSection("ExpirationRules"));
@@ -215,5 +246,6 @@ app.UseAuthentication();
 app.UseAuthorization();
 app.MapControllers();
 
+app.MapHub<UserHub>("/userhub");
 
 app.Run();

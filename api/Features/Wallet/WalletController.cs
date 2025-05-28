@@ -1,12 +1,11 @@
 using api.Features.Transaction.Interfaces;
 using api.Shared.Extensions;
-using api.Shared.Wallet.Interfaces;
+using api.Shared.Interfaces.Wallet;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 
 namespace api.Features.Wallet;
 
-[Authorize]
 [Route("api/wallet")]
 [ApiController]
 public class WalletController : ControllerBase
@@ -18,7 +17,6 @@ public class WalletController : ControllerBase
         _walletRepo = walletRepo;
     }
 
-    [Authorize(Roles = "Admin")]
     [HttpGet("all")]
     public async Task<IActionResult> GetAll()
     {
@@ -35,7 +33,7 @@ public class WalletController : ControllerBase
         return Ok(wallets.Select(w => w.ToWalletDto()));
     }
 
-
+    [Authorize]
     [HttpGet]
     public async Task<IActionResult> GetByUserId()
     {

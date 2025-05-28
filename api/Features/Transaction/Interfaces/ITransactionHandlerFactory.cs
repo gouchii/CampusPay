@@ -1,4 +1,4 @@
-using api.Features.Transaction.Enums;
+using api.Shared.Enums.Transaction;
 
 namespace api.Features.Transaction.Interfaces;
 

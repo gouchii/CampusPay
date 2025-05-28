@@ -1,4 +1,4 @@
-using api.Shared.Auth.Enums;
+using api.Shared.Enums.UserCredential;
 
 namespace api.Features.UserCredential.Context.Update.Interfaces;
 

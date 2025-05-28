@@ -1,7 +1,7 @@
-using api.Features.Transaction.Enums;
 using api.Features.Transaction.Interfaces;
 using api.Features.Transaction.Mappers;
 using api.Shared.DTOs.TransactionDto;
+using api.Shared.Enums.Transaction;
 
 namespace api.Features.Transaction.Handlers;
 

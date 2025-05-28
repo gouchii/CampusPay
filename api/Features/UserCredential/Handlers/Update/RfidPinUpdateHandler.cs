@@ -4,7 +4,7 @@ using api.Features.UserCredential.Context.Update;
 using api.Features.UserCredential.Context.Update.ExtraData;
 using api.Features.UserCredential.Interfaces;
 using api.Features.UserCredential.Models;
-using api.Shared.Auth.Enums;
+using api.Shared.Enums.UserCredential;
 using Microsoft.AspNetCore.Identity;
 
 namespace api.Features.UserCredential.Handlers.Update;

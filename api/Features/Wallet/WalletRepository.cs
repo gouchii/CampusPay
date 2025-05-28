@@ -1,6 +1,6 @@
 using api.Data;
-using api.Shared.Wallet.Enums;
-using api.Shared.Wallet.Interfaces;
+using api.Shared.Enums.Wallet;
+using api.Shared.Interfaces.Wallet;
 using Microsoft.EntityFrameworkCore;
 
 namespace api.Features.Wallet;

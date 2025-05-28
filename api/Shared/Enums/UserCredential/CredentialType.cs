@@ -1,4 +1,4 @@
-namespace api.Shared.Auth.Enums;
+namespace api.Shared.Enums.UserCredential;
 
 public enum CredentialType
 {

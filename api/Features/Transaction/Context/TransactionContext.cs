@@ -1,6 +1,6 @@
 using api.Features.Transaction.Context.ExtraData;
-using api.Features.Transaction.Enums;
 using api.Features.Transaction.Models;
+using api.Shared.Enums.Transaction;
 
 namespace api.Features.Transaction.Context;
 

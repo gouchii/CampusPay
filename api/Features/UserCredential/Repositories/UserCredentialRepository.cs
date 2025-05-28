@@ -2,7 +2,7 @@ using api.Data;
 using api.Features.Auth.Interfaces;
 using api.Features.UserCredential.Interfaces;
 using api.Features.UserCredential.Models;
-using api.Shared.Auth.Enums;
+using api.Shared.Enums.UserCredential;
 using Microsoft.EntityFrameworkCore;
 
 namespace api.Features.UserCredential.Repositories;

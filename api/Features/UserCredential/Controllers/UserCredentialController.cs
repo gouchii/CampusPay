@@ -1,10 +1,10 @@
 using api.Features.UserCredential.Context.Remove.Interfaces;
 using api.Features.UserCredential.Context.Update.Interfaces;
-using api.Shared.Auth.Enums;
 using api.Shared.DTOs.UserCredential.Register;
 using api.Shared.DTOs.UserCredential.Remove;
 using api.Shared.DTOs.UserCredential.Update;
 using api.Shared.DTOs.UserCredential.Validate;
+using api.Shared.Enums.UserCredential;
 using api.Shared.Extensions;
 using api.Shared.UserCredential.Interfaces;
 using Microsoft.AspNetCore.Authorization;

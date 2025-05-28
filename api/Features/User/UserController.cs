@@ -89,4 +89,25 @@ public class UserController : ControllerBase
             return BadRequest(ex.Message);
         }
     }
+
+    [Authorize]
+    [HttpGet("ping/{username}")]
+    public async Task<IActionResult> Ping([FromRoute] string username)
+    {
+        try
+        {
+            var userId = User.GetUserId();
+            if (userId == null)
+            {
+                return BadRequest();
+            }
+
+            await _userService.Ping(username, userId);
+            return Ok();
+        }
+        catch (Exception ex)
+        {
+            return BadRequest(ex.Message);
+        }
+    }
 }

@@ -4,7 +4,6 @@ using System.Security.Cryptography;
 using System.Text;
 using api.Features.Auth.Interfaces;
 using api.Features.User;
-using api.Shared.Expiration.Interfaces;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.IdentityModel.Tokens;
 
@@ -28,9 +27,10 @@ public class JwtService : IJwtService
 
         var claims = new List<Claim>
         {
-            new(JwtRegisteredClaimNames.Sub, userModel.Id),
+            // new(JwtRegisteredClaimNames.Sub, userModel.Id),
             new(JwtRegisteredClaimNames.Jti, Guid.NewGuid().ToString()),
-            new(ClaimTypes.Name, userModel.UserName ?? string.Empty)
+            new(ClaimTypes.Name, userModel.UserName ?? string.Empty),
+            new(ClaimTypes.NameIdentifier, userModel.Id)
         };
 
         foreach (var role in userRoles)

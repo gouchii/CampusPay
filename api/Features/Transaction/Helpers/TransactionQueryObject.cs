@@ -1,5 +1,5 @@
 using System.ComponentModel.DataAnnotations;
-using api.Features.Transaction.Enums;
+using api.Shared.Enums.Transaction;
 
 namespace api.Features.Transaction.Helpers;
 

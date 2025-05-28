@@ -1,6 +1,6 @@
 using System.ComponentModel.DataAnnotations;
-using api.Features.Transaction.Enums;
 using api.Features.User;
+using api.Shared.Enums.Transaction;
 using Microsoft.EntityFrameworkCore;
 
 namespace api.Features.Transaction.Models;

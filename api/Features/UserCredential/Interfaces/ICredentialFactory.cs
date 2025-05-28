@@ -1,5 +1,5 @@
 using api.Features.UserCredential.Models;
-using api.Shared.Auth.Enums;
+using api.Shared.Enums.UserCredential;
 
 namespace api.Features.UserCredential.Interfaces;
 

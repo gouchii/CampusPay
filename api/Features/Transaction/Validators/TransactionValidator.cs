@@ -1,8 +1,8 @@
-using api.Features.Transaction.Enums;
 using api.Features.Transaction.Interfaces;
 using api.Features.Transaction.Models;
-using api.Shared.Expiration.Enums;
-using api.Shared.Expiration.Interfaces;
+using api.Shared.Enums.Expiration;
+using api.Shared.Enums.Transaction;
+using api.Shared.Interfaces.Expiration;
 
 namespace api.Features.Transaction.Validators;
 
@@ -22,15 +22,15 @@ public class TransactionValidator : ITransactionValidator
             throw new Exception($"Transaction amount invalid : {transactionModel.Amount}");
         }
 
-        if (transactionModel.Method == PaymentMethod.None)
-        {
-            throw new Exception("Payment method is set to none");
-        }
-
-        if (transactionModel.Type == TransactionType.None)
-        {
-            throw new Exception("Transaction type is set to none");
-        }
+        // if (transactionModel.Method == PaymentMethod.None)
+        // {
+        //     throw new Exception("Payment method is set to none");
+        // }
+        //
+        // if (transactionModel.Type == TransactionType.None)
+        // {
+        //     throw new Exception("Transaction type is set to none");
+        // }
 
         if (transactionModel.TokenGeneratedAt != null && _expirationService.IsExpired(transactionModel.CreatedAt, ExpirationType.Transaction))
         {

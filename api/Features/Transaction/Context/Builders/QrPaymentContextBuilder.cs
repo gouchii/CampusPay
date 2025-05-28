@@ -1,8 +1,8 @@
 using api.Features.Transaction.Context.ExtraData;
 using api.Features.Transaction.Context.Interfaces;
-using api.Features.Transaction.Enums;
 using api.Features.Transaction.Interfaces;
 using api.Shared.DTOs.TransactionDto;
+using api.Shared.Enums.Transaction;
 
 namespace api.Features.Transaction.Context.Builders;
 

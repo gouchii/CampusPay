@@ -1,9 +1,9 @@
 using api.Features.Transaction.Context.Interfaces;
-using api.Features.Transaction.Enums;
 using api.Features.Transaction.Helpers;
 using api.Features.Transaction.Interfaces;
 using api.Shared.DTOs.QR;
 using api.Shared.DTOs.TransactionDto;
+using api.Shared.Enums.Transaction;
 using api.Shared.Extensions;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
@@ -38,8 +38,8 @@ public class TransactionController : ControllerBase
                 return BadRequest();
             }
 
-            var qrData = await _transactionService.GenerateTransactionAsync(userId);
-            return Ok(qrData);
+            var transactionRefDto = await _transactionService.GenerateTransactionAsync(userId);
+            return Ok(transactionRefDto);
         }
         catch (Exception ex)
         {
@@ -52,9 +52,6 @@ public class TransactionController : ControllerBase
     {
         try
         {
-            if (!ModelState.IsValid)
-                return BadRequest(ModelState);
-
             var transactionDto = await _transactionService.VerifyTransactionAsync(transactionRef);
             return Ok(transactionDto);
         }

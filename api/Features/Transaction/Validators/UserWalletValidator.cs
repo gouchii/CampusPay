@@ -1,6 +1,5 @@
 using api.Features.Transaction.Interfaces;
 using api.Features.Wallet;
-using api.Shared.Wallet.Interfaces;
 
 namespace api.Features.Transaction.Validators;
 

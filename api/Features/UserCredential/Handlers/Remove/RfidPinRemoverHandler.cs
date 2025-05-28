@@ -3,7 +3,7 @@ using api.Features.User;
 using api.Features.UserCredential.Context.Remove;
 using api.Features.UserCredential.Context.Remove.ExtraData;
 using api.Features.UserCredential.Interfaces;
-using api.Shared.Auth.Enums;
+using api.Shared.Enums.UserCredential;
 using Microsoft.AspNetCore.Identity;
 
 namespace api.Features.UserCredential.Handlers.Remove;

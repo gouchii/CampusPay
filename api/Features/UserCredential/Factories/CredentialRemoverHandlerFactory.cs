@@ -1,6 +1,6 @@
 using api.Features.UserCredential.Handlers.Remove;
 using api.Features.UserCredential.Interfaces;
-using api.Shared.Auth.Enums;
+using api.Shared.Enums.UserCredential;
 
 namespace api.Features.UserCredential.Factories;
 

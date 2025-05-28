@@ -1,5 +1,4 @@
 using api.Features.Transaction.Context;
-using api.Features.Transaction.Enums;
 using api.Features.Transaction.Helpers;
 using api.Shared.DTOs.QR;
 using api.Shared.DTOs.TransactionDto;

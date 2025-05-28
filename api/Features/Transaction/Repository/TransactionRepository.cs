@@ -1,8 +1,8 @@
 using api.Data;
-using api.Features.Transaction.Enums;
 using api.Features.Transaction.Helpers;
 using api.Features.Transaction.Interfaces;
 using api.Features.Transaction.Models;
+using api.Shared.Enums.Transaction;
 using Microsoft.EntityFrameworkCore;
 
 namespace api.Features.Transaction.Repository;

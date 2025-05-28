@@ -1,4 +1,4 @@
-namespace api.Features.Transaction.Enums;
+namespace api.Shared.Enums.Transaction;
 
 public enum TransactionType
 {
@@ -7,5 +7,3 @@ public enum TransactionType
     Transfer,
     Refund
 }
-
-

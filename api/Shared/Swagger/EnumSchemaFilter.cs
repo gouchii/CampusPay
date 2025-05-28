@@ -3,7 +3,7 @@ using Swashbuckle.AspNetCore.SwaggerGen;
 
 namespace api.Shared.Swagger;
 
-public abstract class EnumSchemaFilter : ISchemaFilter
+public class EnumSchemaFilter : ISchemaFilter
 {
     public void Apply(OpenApiSchema schema, SchemaFilterContext context)
     {

@@ -17,16 +17,16 @@ public class AuthController : ControllerBase
         _authService = authService;
     }
 
-    [HttpPost("register")]
-    public async Task<IActionResult> Register([FromBody] RegisterRequestDto registerDto)
+    [HttpPost("signup")]
+    public async Task<IActionResult> Register([FromBody] SignUpRequestDto signUpDto)
     {
         try
         {
             if (!ModelState.IsValid)
                 return BadRequest(ModelState);
 
-            var userDto = await _authService.Register(registerDto.UserName, registerDto.FullName,
-                registerDto.Email, registerDto.Password);
+            var userDto = await _authService.Register(signUpDto.UserName, signUpDto.FullName,
+                signUpDto.Email, signUpDto.Password);
             return Ok(userDto);
         }
         catch (Exception ex)

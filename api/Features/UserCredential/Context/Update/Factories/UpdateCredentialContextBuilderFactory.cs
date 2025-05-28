@@ -1,6 +1,6 @@
 using api.Features.UserCredential.Context.Update.Builders;
 using api.Features.UserCredential.Context.Update.Interfaces;
-using api.Shared.Auth.Enums;
+using api.Shared.Enums.UserCredential;
 
 namespace api.Features.UserCredential.Context.Update.Factories;
 

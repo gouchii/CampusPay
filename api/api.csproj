@@ -12,6 +12,8 @@
         <PackageReference Include="Microsoft.AspNetCore.Identity.EntityFrameworkCore" Version="8.0.13" />
         <PackageReference Include="Microsoft.AspNetCore.Mvc.NewtonsoftJson" Version="8.0.13"/>
         <PackageReference Include="Microsoft.AspNetCore.OpenApi" Version="8.0.13"/>
+        <PackageReference Include="Microsoft.AspNetCore.SignalR.Common" Version="9.0.5"/>
+        <PackageReference Include="Microsoft.AspNetCore.SignalR.Protocols.NewtonsoftJson" Version="9.0.5"/>
         <PackageReference Include="Microsoft.EntityFrameworkCore" Version="8.0.13"/>
         <PackageReference Include="Microsoft.EntityFrameworkCore.Design" Version="8.0.13">
             <PrivateAssets>all</PrivateAssets>
@@ -28,7 +30,7 @@
 
     <ItemGroup>
         <Folder Include="Features\Expiration\"/>
-        <Folder Include="Shared\Expiration\"/>
+        <Folder Include="Shared\Auth\Handlers\"/>
         <Folder Include="Shared\UserCredential\"/>
     </ItemGroup>
 

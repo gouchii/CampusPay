@@ -3,7 +3,6 @@ using api.Features.Transaction.Models;
 using api.Features.User;
 using api.Features.UserCredential.Models;
 using api.Features.Wallet;
-using api.Shared.Auth.Enums;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Identity.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore;

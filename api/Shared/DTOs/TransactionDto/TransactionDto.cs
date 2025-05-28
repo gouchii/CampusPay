@@ -1,5 +1,5 @@
-using System.Text.Json.Serialization;
-using api.Features.Transaction.Enums;
+using api.Shared.Enums.Transaction;
+using Newtonsoft.Json;
 using Newtonsoft.Json.Converters;
 
 namespace api.Shared.DTOs.TransactionDto;

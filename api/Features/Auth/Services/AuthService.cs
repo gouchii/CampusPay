@@ -5,9 +5,9 @@ using api.Features.Auth.Models;
 using api.Features.User;
 using api.Features.Wallet;
 using api.Shared.DTOs.Authentication;
-using api.Shared.Expiration.Enums;
-using api.Shared.Expiration.Interfaces;
-using api.Shared.Wallet.Interfaces;
+using api.Shared.Enums.Expiration;
+using api.Shared.Interfaces.Expiration;
+using api.Shared.Interfaces.Wallet;
 using Microsoft.AspNetCore.Identity;
 
 namespace api.Features.Auth.Services;

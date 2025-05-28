@@ -1,7 +1,7 @@
 using api.Features.Auth.Interfaces;
 using api.Features.User;
 using api.Features.UserCredential.Interfaces;
-using api.Shared.Auth.Enums;
+using api.Shared.Enums.UserCredential;
 using api.Shared.Helpers;
 using Microsoft.AspNetCore.Identity;
 

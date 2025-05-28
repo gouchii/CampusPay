@@ -1,5 +1,7 @@
+using api.Features.SignalR;
 using api.Shared.DTOs.UserDto;
 using Microsoft.AspNetCore.Identity;
+using Microsoft.AspNetCore.SignalR;
 using Microsoft.EntityFrameworkCore;
 
 namespace api.Features.User;
@@ -7,12 +9,12 @@ namespace api.Features.User;
 public class UserService : IUserService
 {
     private readonly UserManager<UserModel> _userManager;
+    private readonly IHubContext<UserHub> _hubContext;
 
-
-    public UserService(UserManager<UserModel> userManager)
+    public UserService(UserManager<UserModel> userManager, IHubContext<UserHub> hubContext)
     {
         _userManager = userManager;
-
+        _hubContext = hubContext;
     }
 
 
@@ -78,5 +80,11 @@ public class UserService : IUserService
 
         var roles = await _userManager.GetRolesAsync(user);
         return user.ToUserDto(roles.FirstOrDefault() ?? "No Role");
+    }
+
+    public async Task Ping(string username, string fromUserId)
+    {
+        var user = await _userManager.FindByNameAsync(username);
+        await _hubContext.Clients.User(user?.Id ?? throw new InvalidOperationException()).SendAsync("ReceivePing", fromUserId);
     }
 }

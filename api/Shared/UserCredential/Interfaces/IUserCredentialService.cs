@@ -1,8 +1,8 @@
 using api.Features.UserCredential.Context.Remove;
 using api.Features.UserCredential.Context.Update;
 using api.Features.UserCredential.Models;
-using api.Shared.Auth.Enums;
 using api.Shared.DTOs.UserCredential.Validate;
+using api.Shared.Enums.UserCredential;
 
 namespace api.Shared.UserCredential.Interfaces;
 

@@ -1,6 +1,6 @@
 using api.Features.Expiration.Configs;
-using api.Shared.Expiration.Enums;
-using api.Shared.Expiration.Interfaces;
+using api.Shared.Enums.Expiration;
+using api.Shared.Interfaces.Expiration;
 using Microsoft.Extensions.Options;
 
 namespace api.Features.Expiration.Services;

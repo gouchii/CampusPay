@@ -2,7 +2,7 @@ using api.Features.Auth.Interfaces;
 using api.Features.User;
 using api.Features.UserCredential.Interfaces;
 using api.Features.UserCredential.Models;
-using api.Shared.Auth.Enums;
+using api.Shared.Enums.UserCredential;
 using Microsoft.AspNetCore.Identity;
 
 namespace api.Features.UserCredential.Handlers.Verify;

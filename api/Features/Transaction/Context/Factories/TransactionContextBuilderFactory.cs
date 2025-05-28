@@ -1,6 +1,6 @@
 using api.Features.Transaction.Context.Builders;
 using api.Features.Transaction.Context.Interfaces;
-using api.Features.Transaction.Enums;
+using api.Shared.Enums.Transaction;
 
 namespace api.Features.Transaction.Context.Factories;
 

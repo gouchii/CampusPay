@@ -1,6 +1,6 @@
 using System.ComponentModel.DataAnnotations;
 using api.Features.User;
-using api.Shared.Wallet.Enums;
+using api.Shared.Enums.Wallet;
 using Microsoft.EntityFrameworkCore;
 
 namespace api.Features.Wallet;
