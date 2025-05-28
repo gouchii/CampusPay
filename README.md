@@ -25,7 +25,7 @@ This is a RESTful Web API built using ASP.NET Core and Entity Framework Core.
 1. **Clone the repository**
 
    ```bash
-   git clone https://github.com/your-username/your-repo-name.git
+   git clone https://github.com/gouchii/CampusPay
    ```
 2. **Install SQL Server Express**
    
